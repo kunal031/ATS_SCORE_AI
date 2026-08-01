@@ -77,332 +77,248 @@ export default function AnalysisReport({ report, onNewAnalyze }) {
         </div>
       )}
 
-      <div className="responsive-header" style={{ marginBottom: '30px' }}>
-        <div>
-          <span style={{ fontSize: '13px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700' }}>
-            VERIFIED EVALUATION REPORT
-          </span>
-          <h2 style={{ fontSize: '32px', fontWeight: '800' }}>Candidate Analysis & Rubric Score</h2>
-        </div>
-        
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-          <button className="btn-secondary" onClick={() => exportToCSV(report)}>
-            📥 Download CSV
-          </button>
-          <button className="btn-secondary" onClick={handleCopyTSV} style={{ background: copied ? 'rgba(16, 185, 129, 0.2)' : undefined }}>
-            {copied ? '✅ Copied for Sheets!' : '📋 Copy for Google Sheets'}
-          </button>
-          <button className="btn-primary" onClick={() => setShowConfirm(true)} style={{ padding: '10px 20px', fontSize: '14px' }}>
-            🔄 Evaluate Another
-          </button>
-        </div>
-      </div>
-
       {copied && (
         <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid var(--success)', padding: '12px 20px', borderRadius: '12px', color: '#6ee7b7', marginBottom: '25px', fontSize: '14px', fontWeight: '600' }}>
           ✅ Tabular data copied to clipboard! You can now press <strong>Cmd+V / Ctrl+V</strong> directly into any Google Sheet to generate a structured evaluation spreadsheet.
         </div>
       )}
 
-      {/* Top Header Section: Dial Gauge & Rubric Breakdown */}
-      <div className="report-header">
-        <div className="glass-card score-box" style={{ borderColor: scoreSummary.color || '#a855f7' }}>
-          <span style={{ fontSize: '14px', color: 'var(--text-sub)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '1px' }}>
+      {/* MASTER COMBINED CONTAINER: Part 1 (SMART JD SATISFACTION) & Part 2 (GitHub Tech Stack Proof + Algorithmic Coding Platforms) */}
+      <div style={{
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '24px',
+        padding: '32px',
+        marginBottom: '32px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+        gap: '32px'
+      }}>
+        {/* PART 1 OF CONTAINER: SMART JD SATISFACTION */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#f8fafc', border: `1px solid ${scoreSummary.color || '#c81e28'}40`, borderRadius: '20px', padding: '40px 28px', textAlign: 'center', boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.02)' }}>
+          <span style={{ fontSize: '15px', color: 'var(--text-sub)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '20px' }}>
             SMART JD SATISFACTION
           </span>
-          <div className="score-number" style={{ color: scoreSummary.color || '#fff' }}>
+          <div className="score-number" style={{ color: scoreSummary.color || '#c81e28', fontSize: '76px', fontWeight: '900', margin: '16px 0', lineHeight: '1' }}>
             {safeRender(scoreSummary.overallScore, 0)}%
           </div>
-          <div className="score-badge" style={{ background: `${scoreSummary.color}30`, color: scoreSummary.color, border: `1px solid ${scoreSummary.color}` }}>
+          <div className="score-badge" style={{ background: `${scoreSummary.color || '#c81e28'}15`, color: scoreSummary.color || '#c81e28', border: `1px solid ${scoreSummary.color || '#c81e28'}50`, padding: '8px 22px', borderRadius: '22px', fontSize: '14px', fontWeight: '800', margin: '12px 0 28px' }}>
             {safeRender(scoreSummary.statusLabel, 'VERIFIED MATCH')}
           </div>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '16px', lineHeight: '1.5' }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6', maxWidth: '380px', margin: '0' }}>
             Marking scheme based directly on verified JD requirement satisfaction across Resume Projects & GitHub Repos (no static weights or simple string matching).
           </p>
         </div>
 
-        <div className="glass-card">
-          <h3 style={{ fontSize: '20px', marginBottom: '18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-            <span>🎯 Smart JD Satisfaction & Verification Pillars</span>
-            <span style={{ fontSize: '13px', color: '#10b981', background: 'rgba(16, 185, 129, 0.12)', padding: '4px 12px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.25)', fontWeight: '600' }}>
-              ⚡ Dynamic Proof Scoring
-            </span>
-          </h3>
-
-          <div className="criteria-list">
-            {/* Smart JD Requirement Match */}
-            <div>
-              <div className="criteria-info">
-                <span>1. Smart JD Requirement Match <span style={{ color: '#38bdf8', fontSize: '12px', fontWeight: '600' }}>[Semantic Equivalency Check]</span></span>
-                <span style={{ color: '#38bdf8' }}>{safeRender(breakdown.keywordMatch?.score, 0)}%</span>
-              </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${safeRender(breakdown.keywordMatch?.score, 0)}%`, background: '#38bdf8' }}></div>
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                {safeRender(breakdown.keywordMatch?.summary, "AI smartly matched technologies & conceptual equivalents without requiring rigid word matching.")}
-              </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>💻 GitHub Tech Stack Proof</h3>
+              {github.username ? (
+                <a href={`https://github.com/${github.username}`} target="_blank" rel="noreferrer" style={{ fontSize: '14px', color: '#0284c7', textDecoration: 'none', fontWeight: '600', background: '#e0f2fe', padding: '5px 12px', borderRadius: '8px', border: '1px solid #bae6fd' }}>
+                  @{github.username} ↗
+                </a>
+              ) : (
+                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No GitHub linked</span>
+              )}
             </div>
 
-            {/* Resume Projects Proof */}
-            <div>
-              <div className="criteria-info">
-                <span>2. Resume Projects Tech Proof <span style={{ color: '#f59e0b', fontSize: '12px', fontWeight: '600' }}>[Practical Implementation]</span></span>
-                <span style={{ color: '#f59e0b' }}>{safeRender(breakdown.codingCompetency?.score, 0)}%</span>
-              </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${safeRender(breakdown.codingCompetency?.score, 0)}%`, background: '#f59e0b' }}></div>
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                {safeRender(breakdown.codingCompetency?.summary, "Verified real hands-on implementation across candidate project descriptions.")}
-              </span>
-            </div>
-
-            {/* GitHub Code Proof */}
-            <div>
-              <div className="criteria-info">
-                <span>3. GitHub Repo Code Verification <span style={{ color: '#34d399', fontSize: '12px', fontWeight: '600' }}>[Live Codebase Scanned]</span></span>
-                <span style={{ color: '#34d399' }}>{safeRender(breakdown.githubVerification?.score, 0)}%</span>
-              </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${safeRender(breakdown.githubVerification?.score, 0)}%`, background: '#10b981' }}></div>
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                {safeRender(breakdown.githubVerification?.summary, `Verified working code across ${safeRender(breakdown.githubVerification?.totalRepos, 0)} scanned public repositories.`)}
-              </span>
-            </div>
-
-            {/* Engineering Rigor */}
-            <div>
-              <div className="criteria-info">
-                <span>4. Engineering Rigor & Depth <span style={{ color: '#c084fc', fontSize: '12px', fontWeight: '600' }}>[Structural Clarity]</span></span>
-                <span style={{ color: '#c084fc' }}>{safeRender(breakdown.aiQuality?.score, 0)}%</span>
-              </div>
-              <div className="progress-bar-bg">
-                <div className="progress-bar-fill" style={{ width: `${safeRender(breakdown.aiQuality?.score, 0)}%`, background: '#c084fc' }}></div>
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-                {safeRender(breakdown.aiQuality?.assessment, "Evaluation of architectural complexity, real-world deployment outcomes, and conceptual clarity.")}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Two Column Section: External Verifications */}
-      <div className="dashboard-grid" style={{ marginBottom: '30px' }}>
-        {/* GitHub Verification Detail */}
-        <div className="glass-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '20px' }}>💻 GitHub Tech Stack Proof</h3>
-            {github.username ? (
-              <a href={`https://github.com/${github.username}`} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#60a5fa', textDecoration: 'none', fontWeight: '600' }}>
-                @{github.username} ↗
-              </a>
-            ) : (
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No GitHub linked</span>
-            )}
-          </div>
-
-          <p style={{ fontSize: '14px', color: 'var(--text-sub)', margin: '10px 0 16px' }}>
-            We inspected candidate repositories against required job skills to verify real-world implementation:
-          </p>
-
-          <div className="chip-grid">
-            {github.techVerification && github.techVerification.length > 0 ? (
-              github.techVerification.map((tech, i) => (
-                <div key={i} className={`tech-chip ${tech.present ? 'verified' : 'missing'}`}>
-                  <span>{tech.present ? '✓' : '✗'}</span>
-                  <span>{tech.skill}</span>
-                  <span style={{ fontSize: '11px', opacity: 0.8 }}>({tech.repoCount || 0} repos)</span>
+            {github.techVerification && github.techVerification.some(t => t.sampleRepos && t.sampleRepos.length > 0) ? (
+              <div>
+                <h4 style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>Verified Sample Repositories</span>
+                  {Array.from(new Set(github.techVerification.flatMap(t => t.sampleRepos || []).map(r => r.url))).length > 3 && (
+                    <span style={{ fontSize: '11px', color: '#c81e28', textTransform: 'none', fontWeight: '600' }}>Scroll for more ↓</span>
+                  )}
+                </h4>
+                <div style={{ 
+                  maxHeight: '164px',
+                  minHeight: '164px',
+                  overflowY: 'auto', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '10px',
+                  paddingRight: '4px',
+                  scrollSnapType: 'y mandatory'
+                }}>
+                  {Array.from(new Set(
+                    github.techVerification.flatMap(t => t.sampleRepos || []).map(r => r.url)
+                  )).map((url, idx) => {
+                    const repoObj = github.techVerification.flatMap(t => t.sampleRepos || []).find(r => r.url === url);
+                    return (
+                      <div key={idx} className="repo-card" style={{ 
+                        background: '#ffffff', 
+                        border: '1px solid #e2e8f0', 
+                        padding: '12px 16px', 
+                        borderRadius: '12px', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        minHeight: '48px',
+                        maxHeight: '48px',
+                        scrollSnapAlign: 'start',
+                        flexShrink: 0,
+                        boxSizing: 'border-box',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                      }}>
+                        <span style={{ fontWeight: '600', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '68%' }}>
+                          📦 <a href={repoObj?.url} target="_blank" rel="noreferrer" style={{ color: '#0f172a', textDecoration: 'none', fontWeight: '700' }}>{repoObj?.name || 'project-repo'}</a>
+                        </span>
+                        <span style={{ fontSize: '12px', color: '#c81e28', background: 'rgba(200, 30, 40, 0.08)', border: '1px solid rgba(200, 30, 40, 0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: '700', flexShrink: 0 }}>
+                          {repoObj?.language || 'Code'}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))
+              </div>
             ) : (
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No specific technical stack tags required by Job Description.</p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '20px 0' }}>No specific matching technical repositories required by Job Description.</p>
+            )}
+
+            {github.isFallback && (
+              <div style={{ fontSize: '12px', color: '#b45309', marginTop: '14px', background: '#fef3c7', padding: '10px 14px', borderRadius: '8px', border: '1px solid #fde68a', fontWeight: '600' }}>
+                ℹ️ {github.note || 'GitHub API rate-limited; displaying estimated candidate technical assessment.'}
+              </div>
             )}
           </div>
 
-          {/* Sample Matching Repositories */}
-          {github.techVerification && github.techVerification.some(t => t.sampleRepos && t.sampleRepos.length > 0) && (
-            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-glass)' }}>
-              <h4 style={{ fontSize: '14px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Verified Sample Repositories</h4>
-              <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {Array.from(new Set(
-                  github.techVerification.flatMap(t => t.sampleRepos || []).map(r => r.url)
-                )).slice(0, 4).map((url, idx) => {
-                  const repoObj = github.techVerification.flatMap(t => t.sampleRepos || []).find(r => r.url === url);
-                  return (
-                    <div key={idx} className="repo-card">
-                      <span>📦 <a href={repoObj?.url} target="_blank" rel="noreferrer">{repoObj?.name || 'project-repo'}</a></span>
-                      <span style={{ fontSize: '12px', color: '#94a3b8', background: 'rgba(255,255,255,0.05)', padding: '3px 8px', borderRadius: '6px' }}>
-                        {repoObj?.language || 'Code'}
-                      </span>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', display: 'flex', flexDirection: 'column', flex: '1', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>🏆 Algorithmic Coding Platforms</h3>
+                {(coding.leetcode && coding.codeforces) && (
+                  <span style={{ fontSize: '11px', color: '#c81e28', background: 'rgba(200, 30, 40, 0.08)', padding: '4px 10px', borderRadius: '12px', fontWeight: '700', border: '1px solid rgba(200, 30, 40, 0.2)' }}>
+                    Scroll profiles ↓
+                  </span>
+                )}
+              </div>
+              <p style={{ fontSize: '14px', color: 'var(--text-sub)', marginBottom: '16px' }}>
+                Verification of solved algorithmic problems, rating contests, and technical complexity handling:
+              </p>
+
+              <div style={{
+                maxHeight: '190px',
+                minHeight: '190px',
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                paddingRight: '4px',
+                scrollSnapType: 'y mandatory'
+              }}>
+                {coding.leetcode && (
+                  <div style={{
+                    minHeight: '190px',
+                    maxHeight: '190px',
+                    boxSizing: 'border-box',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    scrollSnapAlign: 'start',
+                    flexShrink: 0,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a' }}>⚡ LeetCode Profile</span>
+                      <a href={coding.leetcode.profileUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#b45309', textDecoration: 'none', fontWeight: '700', background: '#fef3c7', padding: '4px 12px', borderRadius: '8px', border: '1px solid #fde68a' }}>
+                        @{coding.leetcode.username} ↗
+                      </a>
                     </div>
-                  );
-                })}
+                    <div className="stats-grid-4" style={{ gap: '10px', margin: '8px 0' }}>
+                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '10px 6px', borderRadius: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>{coding.leetcode.solved?.total || 0}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', fontWeight: '600' }}>Total Solved</div>
+                      </div>
+                      <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '10px 6px', borderRadius: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#059669' }}>{coding.leetcode.solved?.easy || 0}</div>
+                        <div style={{ fontSize: '11px', color: '#047857', marginTop: '2px', fontWeight: '600' }}>Easy</div>
+                      </div>
+                      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '10px 6px', borderRadius: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#d97706' }}>{coding.leetcode.solved?.medium || 0}</div>
+                        <div style={{ fontSize: '11px', color: '#b45309', marginTop: '2px', fontWeight: '600' }}>Medium</div>
+                      </div>
+                      <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '10px 6px', borderRadius: '10px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '18px', fontWeight: '800', color: '#dc2626' }}>{coding.leetcode.solved?.hard || 0}</div>
+                        <div style={{ fontSize: '11px', color: '#991b1b', marginTop: '2px', fontWeight: '600' }}>Hard</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0', fontWeight: '600' }}>
+                      <span>Global Rank: <strong style={{ color: '#0f172a' }}>{coding.leetcode.ranking || 'N/A'}</strong></span>
+                      <span>Rubric Score: <strong style={{ color: '#c81e28' }}>{coding.leetcode.score || 0}/100</strong></span>
+                    </div>
+                  </div>
+                )}
+
+                {coding.codeforces && (
+                  <div style={{
+                    minHeight: '190px',
+                    maxHeight: '190px',
+                    boxSizing: 'border-box',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    scrollSnapAlign: 'start',
+                    flexShrink: 0,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '17px', fontWeight: '700', color: '#0f172a' }}>📊 Codeforces Profile</span>
+                      <a href={coding.codeforces.profileUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#dc2626', textDecoration: 'none', fontWeight: '700', background: '#fef2f2', padding: '5px 12px', borderRadius: '8px', border: '1px solid #fecaca' }}>
+                        @{coding.codeforces.handle} ↗
+                      </a>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', margin: 'auto 0' }}>
+                      <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '14px 10px', borderRadius: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '22px', fontWeight: '800', color: '#d97706' }}>{coding.codeforces.rating || 1200}</div>
+                        <div style={{ fontSize: '12px', color: '#b45309', marginTop: '3px', fontWeight: '700' }}>{coding.codeforces.rank || 'Pupil'} Rating</div>
+                      </div>
+                      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '14px 10px', borderRadius: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: '22px', fontWeight: '800', color: '#0f172a' }}>{coding.codeforces.problemsSolved || '50+'}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px', fontWeight: '600' }}>Problems Solved</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', textAlign: 'center', background: '#f8fafc', padding: '6px', borderRadius: '6px', fontWeight: '500', border: '1px solid #e2e8f0' }}>
+                      Verified competitive algorithmic proficiency via live rating statistics.
+                    </div>
+                  </div>
+                )}
+
+                {!coding.leetcode && !coding.codeforces && !coding.hackerrank && (
+                  <div style={{ 
+                    minHeight: '190px',
+                    maxHeight: '190px',
+                    boxSizing: 'border-box',
+                    textAlign: 'center', 
+                    padding: '24px 16px', 
+                    border: '1px dashed var(--border-glass)', 
+                    borderRadius: '16px', 
+                    color: 'var(--text-muted)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    scrollSnapAlign: 'start',
+                    flexShrink: 0
+                  }}>
+                    <div style={{ fontSize: '32px', marginBottom: '10px' }}>🧩</div>
+                    <p style={{ fontWeight: '700', color: 'var(--text-sub)', fontSize: '15px', margin: '0 0 6px' }}>No Coding Profile Handle Detected</p>
+                    <p style={{ fontSize: '13px', margin: 0, maxWidth: '300px', lineHeight: '1.4' }}>Add a LeetCode or Codeforces URL in your resume or override section to verify problem solving fluency.</p>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-
-          {github.isFallback && (
-            <div style={{ fontSize: '12px', color: '#facc15', marginTop: '16px', background: 'rgba(250, 204, 21, 0.1)', padding: '10px 14px', borderRadius: '8px' }}>
-              ℹ️ {github.note || 'GitHub API rate-limited; displaying estimated candidate technical assessment.'}
-            </div>
-          )}
-        </div>
-
-        {/* Coding Platforms Detail */}
-        <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ fontSize: '20px', marginBottom: '10px' }}>🏆 Algorithmic Coding Platforms</h3>
-            <p style={{ fontSize: '14px', color: 'var(--text-sub)', marginBottom: '20px' }}>
-              Verification of solved algorithmic problems, rating contests, and technical complexity handling:
-            </p>
-
-            {coding.leetcode && (
-              <div className="criteria-row" style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: '700' }}>⚡ LeetCode Profile</span>
-                  <a href={coding.leetcode.profileUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#f59e0b', textDecoration: 'none', fontWeight: '600' }}>
-                    @{coding.leetcode.username} ↗
-                  </a>
-                </div>
-                <div className="stats-grid-4">
-                  <div style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#fff' }}>{coding.leetcode.solved?.total || 0}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Total Solved</div>
-                  </div>
-                  <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16,185,129,0.2)', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#34d399' }}>{coding.leetcode.solved?.easy || 0}</div>
-                    <div style={{ fontSize: '11px', color: '#6ee7b7' }}>Easy</div>
-                  </div>
-                  <div style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245,158,11,0.2)', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#fbbf24' }}>{coding.leetcode.solved?.medium || 0}</div>
-                    <div style={{ fontSize: '11px', color: '#fcd34d' }}>Medium</div>
-                  </div>
-                  <div style={{ background: 'rgba(244, 63, 94, 0.08)', border: '1px solid rgba(244,63,94,0.2)', padding: '10px', borderRadius: '8px' }}>
-                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#fb7185' }}>{coding.leetcode.solved?.hard || 0}</div>
-                    <div style={{ fontSize: '11px', color: '#fda4af' }}>Hard</div>
-                  </div>
-                </div>
-                <div style={{ marginTop: '12px', fontSize: '13px', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Global Rank: <strong style={{ color: '#cbd5e1' }}>{coding.leetcode.ranking || 'N/A'}</strong></span>
-                  <span>Rubric Score: <strong style={{ color: '#38bdf8' }}>{coding.leetcode.score || 0}/100</strong></span>
-                </div>
-              </div>
-            )}
-
-            {coding.codeforces && (
-              <div className="criteria-row">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: '700' }}>📊 Codeforces Profile</span>
-                  <a href={coding.codeforces.profileUrl} target="_blank" rel="noreferrer" style={{ fontSize: '13px', color: '#ef4444', textDecoration: 'none', fontWeight: '600' }}>
-                    @{coding.codeforces.handle} ↗
-                  </a>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginTop: '10px' }}>
-                  <span>Rating: <strong style={{ color: '#fbbf24', fontSize: '16px' }}>{coding.codeforces.rating || 1200} ({coding.codeforces.rank || 'Pupil'})</strong></span>
-                  <span>Estimated Solved: <strong style={{ color: '#fff' }}>{coding.codeforces.problemsSolved || '50+'}</strong></span>
-                </div>
-              </div>
-            )}
-
-            {!coding.leetcode && !coding.codeforces && !coding.hackerrank && (
-              <div style={{ textAlign: 'center', padding: '30px 10px', border: '1px dashed var(--border-glass)', borderRadius: '12px', color: 'var(--text-muted)' }}>
-                <div style={{ fontSize: '32px', marginBottom: '8px' }}>🧩</div>
-                <p style={{ fontWeight: '600', color: 'var(--text-sub)' }}>No Coding Profile Handle Detected</p>
-                <p style={{ fontSize: '13px', marginTop: '4px' }}>Add a LeetCode or Codeforces URL in your resume or in the dashboard override section to verify problem solving fluency.</p>
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginTop: '20px', padding: '14px 18px', background: 'rgba(139, 92, 246, 0.06)', borderRadius: '12px', border: '1px solid rgba(139,92,246,0.2)' }}>
-            <p style={{ fontSize: '13px', color: '#c084fc', margin: 0 }}>
-              💡 <strong>Recruiter Takeaway:</strong> {coding.hasProfile ? "Verified algorithmic activity proves structured computer science and performance tuning competencies." : "Algorithmic competency defaulted to AI quality assessment proxy without penalty."}
-            </p>
           </div>
         </div>
-      </div>
-
-      {/* AI Smart Semantic Equivalency & Multi-Tier Proof Section */}
-      {ai?.semantic_skill_matches && ai.semantic_skill_matches.length > 0 && (
-        <div className="glass-card" style={{ marginBottom: '30px' }}>
-          <h3 style={{ fontSize: '20px', marginBottom: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-            <span>🔍 Smart JD Requirement Verification Matrix</span>
-            <span style={{ fontSize: '13px', background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', padding: '5px 14px', borderRadius: '20px', fontWeight: '600', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
-              🛠️ Checked via Resume Projects & GitHub Code
-            </span>
-          </h3>
-          <p style={{ fontSize: '14px', color: 'var(--text-sub)', marginBottom: '20px' }}>
-            Each target Job Description requirement is marked not by simple word matching, but by verifying concrete application across candidate projects and live repositories:
-          </p>
-          <div className="matrix-grid">
-            {ai.semantic_skill_matches.map((item, idx) => (
-              <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '12px', padding: '18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', gap: '8px' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '700', color: '#f8fafc' }}>{safeRender(item.requirement)}</span>
-                    <span style={{ 
-                      fontSize: '12px', fontWeight: '800', padding: '4px 10px', borderRadius: '6px', whiteSpace: 'nowrap',
-                      background: item.score >= 80 ? 'rgba(16, 185, 129, 0.15)' : item.score >= 50 ? 'rgba(245, 158, 11, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                      color: item.score >= 80 ? '#34d399' : item.score >= 50 ? '#f59e0b' : '#fb7185',
-                      border: `1px solid ${item.score >= 80 ? 'rgba(16, 185, 129, 0.3)' : item.score >= 50 ? 'rgba(245, 158, 11, 0.3)' : 'rgba(244, 63, 94, 0.3)'}`
-                    }}>
-                      {safeRender(item.match_type, item.score >= 50 ? 'Matched' : 'Missing')} ({safeRender(item.score, 0)}%)
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '12px' }}>
-                    <strong style={{ color: '#38bdf8' }}>Semantic Fit:</strong> {safeRender(item.candidate_has, 'Not documented in candidate text')}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                  {/* Resume Project Proof Badge */}
-                  <div style={{ fontSize: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <span style={{ minWidth: '18px' }}>🛠️</span>
-                    <span>
-                      <strong style={{ color: '#f59e0b', fontWeight: '600' }}>Project Proof: </strong>
-                      <span style={{ color: 'var(--text-muted)' }}>{safeRender(item.project_proof, "Verified across candidate work achievements and project architectures")}</span>
-                    </span>
-                  </div>
-
-                  {/* GitHub Repo Code Proof Badge */}
-                  <div style={{ fontSize: '12px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                    <span style={{ minWidth: '18px' }}>📦</span>
-                    <span>
-                      <strong style={{ color: item.github_proof ? '#34d399' : '#94a3b8', fontWeight: '600' }}>
-                        {item.github_proof ? 'GitHub Confirmed: ' : 'GitHub Scan: '}
-                      </strong>
-                      <span style={{ color: item.github_proof ? '#10b981' : 'var(--text-muted)' }}>
-                        {item.github_proof ? `Verified in working code (${Array.isArray(item.sample_repos) && item.sample_repos.length > 0 ? item.sample_repos.join(', ') : 'Scanned Repositories'})` : 'No corresponding public repository found'}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Executive Assessment Section */}
-      <div className="glass-card" style={{ background: 'rgba(255,255,255,0.02)', padding: '24px 28px' }}>
-        <h3 style={{ fontSize: '20px', color: '#a855f7', marginBottom: '10px' }}>📋 Executive Recruiter Synthesis</h3>
-        <p style={{ fontSize: '15px', color: '#cbd5e1', lineHeight: '1.7' }}>
-          {safeRender(ai?.overall_assessment, "Candidate demonstrates strong foundations across required technical layers with verifiable implementation projects.")}
-        </p>
-      </div>
-
-      <div className="export-bar">
-        <button className="btn-secondary" onClick={() => exportToCSV(report)}>
-          📥 Export CSV Report
-        </button>
-        <button className="btn-secondary" onClick={handleCopyTSV} style={{ background: copied ? 'rgba(16, 185, 129, 0.2)' : undefined }}>
-          {copied ? '✅ Copied for Sheets!' : '📋 Copy for Google Sheets'}
-        </button>
-        <button className="btn-primary" onClick={() => setShowConfirm(true)}>
-          🔄 Try New Analysis
-        </button>
       </div>
     </div>
   );

@@ -76,9 +76,29 @@ async function performFullEvaluation(targetText, jobDescription, customProfiles 
   const candidateName = aiAnalysis?.candidate_name || extractCandidateName(targetText, filename, index, detectedProfiles?.github);
 
   // Determine concrete verifiable required tech stack from AI result
-  const requiredTechStack = (aiAnalysis?.verifiable_tech_stack_for_github && aiAnalysis.verifiable_tech_stack_for_github.length > 0)
+  const rawTechStack = (aiAnalysis?.verifiable_tech_stack_for_github && aiAnalysis.verifiable_tech_stack_for_github.length > 0)
     ? aiAnalysis.verifiable_tech_stack_for_github
     : ((aiAnalysis?.job_description_skills && aiAnalysis.job_description_skills.length > 0) ? aiAnalysis.job_description_skills : ["JavaScript", "TypeScript", "React.js", "Node.js", "Express", "MongoDB", "Docker", "Git"]);
+
+  // Strictly filter skills so ONLY those mentioned in or directly aligned with the JD appear in GitHub proof
+  const jdTextLower = jobDescription.toLowerCase();
+  const filteredTechStack = rawTechStack.filter(skill => {
+    const s = skill.toLowerCase().trim();
+    const baseWord = s.replace(/\.js$/, "").replace(/\s+/g, "");
+    if (jdTextLower.includes(baseWord) || (baseWord.length > 3 && jdTextLower.includes(baseWord.slice(0, -1)))) return true;
+    // Check conceptual & architectural alignments with JD
+    if ((s === "git" || s === "github") && (jdTextLower.includes("version control") || jdTextLower.includes("ci/cd") || jdTextLower.includes("git") || jdTextLower.includes("repo") || jdTextLower.includes("software") || jdTextLower.includes("developer"))) return true;
+    if ((s === "express" || s === "node.js" || s === "node" || s === "nest.js") && (jdTextLower.includes("node") || jdTextLower.includes("express") || jdTextLower.includes("javascript") || jdTextLower.includes("backend") || jdTextLower.includes("api") || jdTextLower.includes("microservices"))) return true;
+    if ((s === "react.js" || s === "react" || s === "next.js" || s === "vue.js" || s === "angular" || s === "redux") && (jdTextLower.includes("react") || jdTextLower.includes("next") || jdTextLower.includes("frontend") || jdTextLower.includes("ui") || jdTextLower.includes("web") || jdTextLower.includes("javascript"))) return true;
+    if ((s === "typescript" || s === "javascript") && (jdTextLower.includes("js") || jdTextLower.includes("ts") || jdTextLower.includes("web") || jdTextLower.includes("node") || jdTextLower.includes("react") || jdTextLower.includes("full stack") || jdTextLower.includes("frontend") || jdTextLower.includes("developer"))) return true;
+    if ((s === "docker" || s === "kubernetes" || s === "aws" || s === "gcp" || s === "azure" || s === "terraform") && (jdTextLower.includes("cloud") || jdTextLower.includes("container") || jdTextLower.includes("docker") || jdTextLower.includes("aws") || jdTextLower.includes("deploy") || jdTextLower.includes("devops") || jdTextLower.includes("infrastructure"))) return true;
+    if ((s === "mongodb" || s === "postgresql" || s === "mysql" || s === "redis" || s === "sql" || s === "sqlite") && (jdTextLower.includes("database") || jdTextLower.includes("db") || jdTextLower.includes("sql") || jdTextLower.includes("nosql") || jdTextLower.includes("mongo") || jdTextLower.includes("postgres") || jdTextLower.includes("storage") || jdTextLower.includes("backend"))) return true;
+    if ((s === "python" || s === "pytorch" || s === "tensorflow" || s === "huggingface" || s === "langchain" || s === "scikit-learn" || s === "pandas" || s === "numpy") && (jdTextLower.includes("ai") || jdTextLower.includes("machine learning") || jdTextLower.includes("data") || jdTextLower.includes("nlp") || jdTextLower.includes("model") || jdTextLower.includes("python") || jdTextLower.includes("llm"))) return true;
+    if ((s === "java" || s === "spring" || s === "c++" || s === "c#" || s === ".net" || s === "golang" || s === "rust" || s === "kotlin") && (jdTextLower.includes(baseWord) || jdTextLower.includes("system") || jdTextLower.includes("enterprise") || jdTextLower.includes("backend"))) return true;
+    return false;
+  }).slice(0, 10); // Cap at top 10 most relevant tech skills to prevent UI clutter
+
+  const requiredTechStack = filteredTechStack.length > 0 ? filteredTechStack : rawTechStack.slice(0, 6);
 
   // 3. Perform Concurrent External Verifications (GitHub Repos & Coding Platforms)
   const [githubResult, codingResult] = await Promise.all([

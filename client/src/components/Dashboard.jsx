@@ -15,37 +15,57 @@ Key Technical Requirements:
 
 Algorithmic & Coding Competency:
 - Proven problem-solving ability on algorithmic coding platforms (LeetCode, Codeforces, HackerRank).
-- Ability to optimize high-throughput code and minimize time complexity for real-time applications.`;
 
-const SAMPLE_RESUME_TEXT = `Kunal Raj - Senior Software Engineer & Cloud Architect
-Email: kunal.dev@example.com | GitHub: https://github.com/torvalds | LeetCode: https://leetcode.com/u/neetcode
+Required Experience:
+- 4+ years in professional cloud full-stack software development.`;
+
+const SAMPLE_RESUME_TEXT = `Kunal Raj - Senior Software & Systems Engineer
+Email: kunal.raj@example.com | GitHub: https://github.com/torvalds | LeetCode: https://leetcode.com/neetcode
 
 SUMMARY:
-Results-driven Full Stack Engineer with extensive hands-on experience designing reactive client-side interfaces and robust Node.js microservices. Demonstrated capability in database architecture and algorithmic optimization.
+Results-driven Lead Engineer with over 5 years of architectural experience designing scalable cloud microservices, reactive frontends, and automated algorithmic trading pipelines.
 
 TECHNICAL SKILLS:
-Languages & Frameworks: JavaScript, TypeScript, React.js, Node.js, Express, HTML5, CSS3, Python.
-Databases & DevOps: MongoDB, Docker, AWS, Git, RESTful APIs, CI/CD Pipelines.
+- Languages & Frameworks: JavaScript, TypeScript, Python, C++, React.js, Next.js, Node.js, Express, Tailwind CSS.
+- Databases & Infra: MongoDB, PostgreSQL, Redis, Docker, Kubernetes, AWS (EC2, ECS, S3), CI/CD, Git.
 
 PROFESSIONAL EXPERIENCE:
-Senior Frontend & Node Developer | TechSphere Sol (2022 - Present)
-- Responsible for developing web apps and fixing bugs in production across distributed teams.
-- Worked with database and APIs for client requirements and reduced latency on main user dashboard.
-- Integrated automated Docker container workflows and deployed scalable AWS Lambda endpoints.
-- Mentored junior devs in code reviews and algorithms.
+Senior Full Stack Engineer | TechCorp Global (2021 - Present)
+- Architected and deployed microservices using Node.js, Express, and Docker, reducing API latency by 35%.
+- Built dynamic reactive frontends in TypeScript and React.js with real-time WebSocket state management.
+- Modeled complex NoSQL database schemas in MongoDB and set up automated Jest CI/CD testing pipelines on AWS ECS.
+
+Software Developer | Innovate Solutions (2019 - 2021)
+- Developed secure authentication services and PostgreSQL schemas for enterprise SaaS workflows.
+- Implemented responsive React components and stateful custom hooks for high-volume analytics dashboards.
 
 EDUCATION:
 Bachelor of Technology in Computer Science (2021)`;
 
-export default function Dashboard({ onComplete }) {
-  const [evalMode, setEvalMode] = useState(() => localStorage.getItem('ats_eval_mode') || 'single'); // 'single' | 'batch'
+export default function Dashboard({ 
+  onComplete, 
+  appMode: parentAppMode, 
+  setAppMode: parentSetAppMode, 
+  evalMode: parentEvalMode, 
+  setEvalMode: parentSetEvalMode, 
+  triggerAction 
+}) {
+  const [localAppMode, setLocalAppMode] = useState(() => localStorage.getItem('ats_app_mode') || 'live'); // 'live' | 'demo'
+  const [localEvalMode, setLocalEvalMode] = useState(() => localStorage.getItem('ats_eval_mode') || 'single'); // 'single' | 'batch'
+
+  const appMode = parentAppMode !== undefined ? parentAppMode : localAppMode;
+  const setAppMode = parentSetAppMode || setLocalAppMode;
+
+  const evalMode = parentEvalMode !== undefined ? parentEvalMode : localEvalMode;
+  const setEvalMode = parentSetEvalMode || setLocalEvalMode;
+
   const [inputMode, setInputMode] = useState(() => localStorage.getItem('ats_input_mode') || 'file'); // 'file' | 'link' | 'text'
   const [selectedFile, setSelectedFile] = useState(null);
   const [resumeUrl, setResumeUrl] = useState(() => localStorage.getItem('ats_resume_url') || '');
   const [resumeText, setResumeText] = useState(() => localStorage.getItem('ats_resume_text') || '');
   const [jobDescription, setJobDescription] = useState(() => {
     const saved = localStorage.getItem('ats_jd_text');
-    return saved !== null ? saved : SAMPLE_JD;
+    return saved !== null ? saved : '';
   });
   
   // Optional profile overrides for single evaluation
@@ -73,16 +93,14 @@ export default function Dashboard({ onComplete }) {
       } catch (e) { /* fallback to default */ }
     }
     return [
-      { id: 'RES-001', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' },
-      { id: 'RES-002', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' }
+      { id: 'RES-001', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' }
     ];
   });
 
   // Execution state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeStep, setActiveStep] = useState(0);
-
+  
   // Smart Bulk Paste state
   const [bulkPasteText, setBulkPasteText] = useState('');
   const [bulkStatus, setBulkStatus] = useState(null);
@@ -91,67 +109,82 @@ export default function Dashboard({ onComplete }) {
   const enteredCount = Array.isArray(candidates) ? candidates.length : 0;
   const countLabel = `${enteredCount} ${enteredCount === 1 ? 'Entry' : 'Entries'} Entered`;
 
-  // Persist form inputs across accidental or intentional browser tab refreshes
   useEffect(() => {
+    localStorage.setItem('ats_app_mode', appMode);
     localStorage.setItem('ats_eval_mode', evalMode);
     localStorage.setItem('ats_input_mode', inputMode);
-    localStorage.setItem('ats_resume_url', resumeUrl);
-    localStorage.setItem('ats_resume_text', resumeText);
-    localStorage.setItem('ats_jd_text', jobDescription);
-    localStorage.setItem('ats_github_override', githubOverride);
-    localStorage.setItem('ats_leetcode_override', leetcodeOverride);
-    try {
-      const serializable = (Array.isArray(candidates) ? candidates : []).map(c => {
-        if (!c) return null;
-        let fileMeta = null;
-        if (c.file) {
-          try {
-            if (typeof File !== 'undefined' && c.file instanceof File) {
-              fileMeta = { name: c.file.name, size: c.file.size, type: c.file.type };
-            } else if (c.file.name) {
-              fileMeta = c.file;
-            }
-          } catch (e) { fileMeta = null; }
-        }
-        return { ...c, file: fileMeta };
-      }).filter(Boolean);
-      localStorage.setItem('ats_batch_candidates', JSON.stringify(serializable));
-    } catch (e) {
-      console.warn("Unable to serialize candidates for persistence:", e);
-    }
-  }, [evalMode, inputMode, resumeUrl, resumeText, jobDescription, githubOverride, leetcodeOverride, candidates]);
+    localStorage.setItem('ats_resume_url', resumeUrl || '');
+    localStorage.setItem('ats_resume_text', resumeText || '');
+    localStorage.setItem('ats_jd_text', jobDescription || '');
+    localStorage.setItem('ats_github_override', githubOverride || '');
+    localStorage.setItem('ats_leetcode_override', leetcodeOverride || '');
+  }, [appMode, evalMode, inputMode, resumeUrl, resumeText, jobDescription, githubOverride, leetcodeOverride]);
 
-  // Animated sequential step progression during loading
   useEffect(() => {
-    let timer;
-    if (loading) {
-      if (activeStep < 4) {
-        timer = setTimeout(() => setActiveStep(prev => prev + 1), 1600);
-      }
-    } else {
-      setActiveStep(0);
+    if (Array.isArray(candidates) && candidates.length > 0) {
+      const serializable = candidates.map(c => ({
+        id: c.id,
+        mode: c.mode,
+        url: c.url,
+        text: c.text,
+        github: c.github,
+        leetcode: c.leetcode,
+        nameHint: c.file ? c.file.name : (c.nameHint || '')
+      }));
+      localStorage.setItem('ats_batch_candidates', JSON.stringify(serializable));
     }
-    return () => clearTimeout(timer);
-  }, [loading, activeStep]);
+  }, [candidates]);
 
-  const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-      setError('');
+  // Drag & Drop File Handlers
+  const handleDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      if (evalMode === 'batch' || e.dataTransfer.files.length > 1) {
+        handleMultiFileUpload(e.dataTransfer.files);
+      } else {
+        setSelectedFile(e.dataTransfer.files[0]);
+        setInputMode('file');
+        setError('');
+      }
     }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setSelectedFile(e.dataTransfer.files[0]);
-      setError('');
+  const handleDragOver = (e) => e.preventDefault();
+
+  const handleMultiFileUpload = (files) => {
+    const fileArray = Array.from(files).slice(0, 10); // Max 10 files
+    if (!fileArray || fileArray.length === 0) return;
+
+    let baseCandidates = [...candidates];
+    if (baseCandidates.length === 1 && !baseCandidates[0].file && !baseCandidates[0].url?.trim() && !baseCandidates[0].text?.trim() && !baseCandidates[0].github?.trim() && !baseCandidates[0].leetcode?.trim()) {
+      baseCandidates = [];
     }
+
+    const startIdx = baseCandidates.length;
+    const newEntries = fileArray.map((file, i) => ({
+      id: `RES-00${startIdx + i + 1}`,
+      mode: 'file',
+      file: file,
+      url: '',
+      text: '',
+      github: '',
+      leetcode: '',
+      nameHint: file.name
+    }));
+
+    const combined = [...baseCandidates, ...newEntries].map((cand, idx) => ({
+      ...cand,
+      id: `RES-00${idx + 1}`
+    }));
+
+    setCandidates(combined);
+    setEvalMode('batch');
+    setError('');
   };
 
   const handleSwitchToSingleMode = () => {
     setEvalMode('single');
-    // Instantly clear prior inputs for a clean empty state ready for fresh user input
+    setAppMode('live');
     setJobDescription('');
     setSelectedFile(null);
     setResumeUrl('');
@@ -166,7 +199,7 @@ export default function Dashboard({ onComplete }) {
 
   const handleSwitchToBatchMode = () => {
     setEvalMode('batch');
-    // Instantly clear prior inputs for a clean empty state ready for fresh user input
+    setAppMode('live');
     setJobDescription('');
     setSelectedFile(null);
     setResumeUrl('');
@@ -180,8 +213,8 @@ export default function Dashboard({ onComplete }) {
   };
 
   const handleFillSample = () => {
+    setAppMode('demo');
     setEvalMode('single');
-    // Clear out any prior batch or alternate input state and auto-populate demo sample data
     setSelectedFile(null);
     setResumeUrl('');
     setCandidates([{ id: 'RES-001', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' }]);
@@ -191,11 +224,13 @@ export default function Dashboard({ onComplete }) {
     setGithubOverride('torvalds');
     setLeetcodeOverride('neetcode');
     setError('');
+    setBulkPasteText('');
+    setBulkStatus(null);
   };
 
   const handleFillBatchSample = () => {
+    setAppMode('demo');
     setEvalMode('batch');
-    // Clear out any prior single mode inputs and auto-populate batch sample data
     setSelectedFile(null);
     setResumeUrl('');
     setResumeText('');
@@ -235,7 +270,22 @@ export default function Dashboard({ onComplete }) {
       }
     ]);
     setError('');
+    setBulkPasteText('');
+    setBulkStatus(null);
   };
+
+  useEffect(() => {
+    if (!triggerAction) return;
+    if (triggerAction.type === 'FILL_SAMPLE_SINGLE') {
+      handleFillSample();
+    } else if (triggerAction.type === 'FILL_SAMPLE_BATCH') {
+      handleFillBatchSample();
+    } else if (triggerAction.type === 'SWITCH_LIVE_SINGLE') {
+      handleSwitchToSingleMode();
+    } else if (triggerAction.type === 'SWITCH_LIVE_BATCH') {
+      handleSwitchToBatchMode();
+    }
+  }, [triggerAction]);
 
   const handleAddCandidate = () => {
     const newIndex = candidates.length + 1;
@@ -264,7 +314,6 @@ export default function Dashboard({ onComplete }) {
       setBulkStatus({ type: 'error', message: '⚠️ Please paste text containing one or more resume URL links.' });
       return;
     }
-    // Match http or https URLs cleanly, excluding common trailing punctuation or layout brackets
     const urlRegex = /(https?:\/\/[^\s,;<>)!"]+)/g;
     const matches = bulkPasteText.match(urlRegex) || [];
     const uniqueUrls = Array.from(new Set(matches.map(url => url.replace(/[.)"']$/, ''))));
@@ -274,10 +323,9 @@ export default function Dashboard({ onComplete }) {
       return;
     }
 
-    // Filter out existing empty placeholder entries if they haven't been used yet
     let baseCandidates = [...candidates];
     if (baseCandidates.length === 1 && !baseCandidates[0].file && !baseCandidates[0].url?.trim() && !baseCandidates[0].text?.trim() && !baseCandidates[0].github?.trim() && !baseCandidates[0].leetcode?.trim()) {
-      baseCandidates = []; // Replace empty initial placeholder slot
+      baseCandidates = [];
     }
 
     const startIdx = baseCandidates.length;
@@ -294,7 +342,7 @@ export default function Dashboard({ onComplete }) {
 
     const combined = [...baseCandidates, ...newCandidateEntries].map((cand, idx) => ({
       ...cand,
-      id: `RES-00${idx + 1}` // Re-index cleanly
+      id: `RES-00${idx + 1}`
     }));
 
     setCandidates(combined);
@@ -304,10 +352,7 @@ export default function Dashboard({ onComplete }) {
       message: `✨ Successfully parsed & populated ${uniqueUrls.length} resume URL${uniqueUrls.length > 1 ? 's' : ''} into the batch list below!`
     });
 
-    // Auto clear success message after 6 seconds
-    setTimeout(() => {
-      setBulkStatus(null);
-    }, 6000);
+    setTimeout(() => setBulkStatus(null), 6000);
   };
 
   const handleAnalyze = async (e) => {
@@ -318,37 +363,33 @@ export default function Dashboard({ onComplete }) {
     }
 
     if (evalMode === 'single') {
-      if (inputMode === 'file' && !selectedFile) {
+      if (inputMode === 'file' && !selectedFile && !resumeText.trim()) {
         setError('Please upload a PDF or DOCX resume file, or switch to link/text input.');
         return;
       }
-      if (inputMode === 'link' && !resumeUrl.trim()) {
-        setError('Please provide a valid resume URL link.');
+      if (inputMode === 'link' && !resumeUrl.trim() && !resumeText.trim()) {
+        setError('Please provide a public link to the candidate resume.');
         return;
       }
       if (inputMode === 'text' && !resumeText.trim()) {
-        setError('Please provide candidate resume text.');
-        return;
-      }
-    } else {
-      if (candidates.length === 0) {
-        setError('No candidates entered in batch. Please click "+ Add Another Candidate Resume Entry" or load the Demo!');
-        return;
-      }
-      const hasContent = candidates.some(c => (c.mode === 'file' && c.file) || (c.mode === 'link' && c.url && c.url.trim()) || (c.mode === 'text' && c.text && c.text.trim()));
-      if (!hasContent) {
-        setError('Please provide resume file, text, or URL for at least one candidate entry in the batch.');
+        setError('Please paste the candidate resume text.');
         return;
       }
     }
 
-    setLoading(true);
+    if (evalMode === 'batch') {
+      const validResumes = candidates.filter(c => (c.mode === 'file' && c.file) || (c.mode === 'link' && c.url?.trim()) || (c.mode === 'text' && c.text?.trim()) || c.nameHint);
+      if (validResumes.length === 0) {
+        setError('Please enter or upload at least one valid candidate resume in the batch list.');
+        return;
+      }
+    }
+
     setError('');
-    setActiveStep(1);
+    setLoading(true);
 
     try {
       if (evalMode === 'batch') {
-        // Step 1: Process each candidate resume in the batch
         const processedResumes = await Promise.all(candidates.map(async (c, idx) => {
           let extractedText = c.text;
           let detectedProfiles = {};
@@ -410,12 +451,10 @@ export default function Dashboard({ onComplete }) {
       if (inputMode === 'file' && selectedFile && selectedFile instanceof File) {
         const formData = new FormData();
         formData.append('resume', selectedFile);
-
         const uploadRes = await axios.post(`${API_BASE_URL}/resume/upload`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
           timeout: 15000
         });
-
         extractedText = uploadRes.data.text;
         detectedProfiles = uploadRes.data.detectedProfiles || {};
       }
@@ -449,371 +488,539 @@ export default function Dashboard({ onComplete }) {
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.error || err.message || 'Failed to analyze resume. Make sure backend server is running on port 4000.');
       setLoading(false);
+      setError(err.response?.data?.error || err.message || 'Failed to analyze resume. Make sure backend server is running.');
     }
   };
 
-  if (loading) {
-    return (
-      <div className="glass-card progress-panel" style={{ maxWidth: '680px', margin: '40px auto' }}>
-        <div className="pulse-spinner"></div>
-        <h2 className="gradient-text" style={{ fontSize: '28px' }}>
-          {evalMode === 'batch' ? `Evaluating & Deep Verifying ${enteredCount} Candidate Resumes` : 'Evaluating & Verifying Candidate'}
-        </h2>
-        <p style={{ color: 'var(--text-sub)', marginTop: '10px' }}>
-          Our AI engines are scanning repositories and coding platforms in real time...
-        </p>
-
-        <div className="progress-steps">
-          <div className={`step-item ${activeStep >= 1 ? (activeStep > 1 ? 'done' : 'active') : ''}`}>
-            <span>{activeStep > 1 ? '✅' : '⚡'}</span>
-            <div>
-              <strong>1. Document Parsing & NLP Extraction</strong>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Extracting profile links, names, and candidate skills</p>
-            </div>
-          </div>
-
-          <div className={`step-item ${activeStep >= 2 ? (activeStep > 2 ? 'done' : 'active') : ''}`}>
-            <span>{activeStep > 2 ? '✅' : '🔍'}</span>
-            <div>
-              <strong>2. GitHub Repository Tech Stack Verification</strong>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Checking public repos for required JD programming languages</p>
-            </div>
-          </div>
-
-          <div className={`step-item ${activeStep >= 3 ? (activeStep > 3 ? 'done' : 'active') : ''}`}>
-            <span>{activeStep > 3 ? '✅' : '🏆'}</span>
-            <div>
-              <strong>3. Coding Platform Competency Assessment</strong>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Querying LeetCode & Codeforces problem solving metrics</p>
-            </div>
-          </div>
-
-          <div className={`step-item ${activeStep >= 4 ? 'active' : ''}`}>
-            <span>✨</span>
-            <div>
-              <strong>4. 100-Point Rubric & Executive Synthesis</strong>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Synthesizing weighted evaluation criteria and ranking summary</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '25px', maxWidth: '850px', margin: '0 auto 30px' }}>
-        <h1 style={{ fontSize: '44px', fontWeight: '800', letterSpacing: '-1px' }}>
-          AI Resume ATS & <span className="gradient-text">Live Tech Verifier</span>
-        </h1>
-        <p style={{ color: 'var(--text-sub)', fontSize: '17px', marginTop: '12px' }}>
-          Upload single or multiple resumes against a job description. Our AI verifies claimed tech stacks in <strong>GitHub repositories</strong> and benchmarks algorithmic fluency on <strong>LeetCode & Codeforces</strong>.
-        </p>
-        <div style={{ marginTop: '18px', display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="btn-secondary" type="button" onClick={handleFillSample} style={{ border: '1px solid rgba(139, 92, 246, 0.4)' }}>
-            ⚡ Demo: Single Senior Engineer
-          </button>
-          <button className="btn-secondary" type="button" onClick={handleFillBatchSample} style={{ border: '1px solid rgba(16, 185, 129, 0.4)', color: '#34d399', fontWeight: '700' }}>
-            👥 Demo: Batch Comparisons ({countLabel})
-          </button>
-        </div>
-      </div>
-
-      {/* Evaluation Mode Toggle Tabs with Synchronized Entry Count */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
-        <div className="tabs-container" style={{ background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '14px', border: '1px solid var(--border-glass)' }}>
-          <button
-            type="button"
-            className={`tab-btn ${evalMode === 'single' ? 'active' : ''}`}
-            onClick={handleSwitchToSingleMode}
-            style={{ padding: '10px 26px', fontSize: '15px', fontWeight: '700', borderRadius: '10px', background: evalMode === 'single' ? 'var(--accent-gradient)' : 'transparent', color: evalMode === 'single' ? '#fff' : 'var(--text-sub)' }}
-          >
-            👤 Single Candidate Mode
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${evalMode === 'batch' ? 'active' : ''}`}
-            onClick={handleSwitchToBatchMode}
-            style={{ padding: '10px 26px', fontSize: '15px', fontWeight: '700', borderRadius: '10px', background: evalMode === 'batch' ? 'var(--accent-gradient)' : 'transparent', color: evalMode === 'batch' ? '#fff' : 'var(--text-sub)' }}
-          >
-            👥 Batch Multi-Resume ({countLabel})
-          </button>
-        </div>
-      </div>
-
+    <div style={{ maxWidth: '1160px', margin: '0 auto', padding: '10px 24px 140px', position: 'relative' }}>
       {error && (
-        <div style={{ background: 'rgba(244, 63, 94, 0.15)', border: '1px solid #f43f5e', padding: '16px 20px', borderRadius: '12px', color: '#fda4af', marginBottom: '25px', textAlign: 'center', fontWeight: '500' }}>
+        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', padding: '14px 18px', borderRadius: '14px', marginBottom: '20px', fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 2px 8px rgba(220, 38, 38, 0.08)' }}>
           ⚠️ {error}
         </div>
       )}
 
-      <form onSubmit={handleAnalyze}>
-        <div className="dashboard-grid">
-          {/* Left Column: Candidate Resume(s) Input */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            {evalMode === 'single' ? (
-              <div>
-                <div className="responsive-header" style={{ marginBottom: '16px' }}>
-                  <h3 style={{ fontSize: '22px' }}>📄 Candidate Resume</h3>
-                  <div className="tabs-container" style={{ margin: 0, fontSize: '13px' }}>
-                    <button type="button" className={`tab-btn ${inputMode === 'file' ? 'active' : ''}`} onClick={() => setInputMode('file')}>Upload File</button>
-                    <button type="button" className={`tab-btn ${inputMode === 'link' ? 'active' : ''}`} onClick={() => setInputMode('link')}>URL Link</button>
-                    <button type="button" className={`tab-btn ${inputMode === 'text' ? 'active' : ''}`} onClick={() => setInputMode('text')}>Text</button>
-                  </div>
-                </div>
+      {/* MASTER COMBINED CONTAINER: 2-Part Split Layout for Job Description and Resume Upload */}
+      <div style={{
+        background: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '24px',
+        padding: '28px',
+        marginBottom: '28px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
+        gap: '32px'
+      }}>
+        {/* PART 1 OF CONTAINER: Job Description side */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '22px' }}>📄</span>
+              <span style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', letterSpacing: '-0.3px' }}>Job Description</span>
+            </div>
+            <span style={{ fontSize: '13px', fontFamily: 'var(--font-mono)', color: '#64748b', fontWeight: '600', background: '#f1f5f9', padding: '3px 10px', borderRadius: '8px' }}>Required</span>
+          </div>
 
-                {inputMode === 'file' && (
-                  <div className="dropzone" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} onClick={() => document.getElementById('file-upload').click()}>
-                    <input id="file-upload" type="file" accept=".pdf,.doc,.docx,.txt" style={{ display: 'none' }} onChange={handleFileChange} />
-                    <div style={{ fontSize: '38px', marginBottom: '10px' }}>📁</div>
-                    {selectedFile ? (
-                      <div>
-                        <p style={{ color: 'var(--success)', fontWeight: '600', fontSize: '16px' }}>✓ Selected: {selectedFile.name}</p>
-                        {selectedFile.size && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>({(selectedFile.size / 1024).toFixed(1)} KB)</span>}
-                      </div>
-                    ) : (
-                      <div>
-                        <p style={{ color: 'var(--text-main)', fontWeight: '600' }}>Click to select or drop resume document here</p>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Supports PDF, Word (DOCX), and Text formats (Max 15MB)</p>
-                      </div>
-                    )}
-                  </div>
-                )}
+          <div style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '16px',
+            padding: '16px',
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            flex: '1',
+            minHeight: '420px',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.02)'
+          }}>
+            <textarea
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste job description text here..."
+              style={{
+                width: '100%',
+                flex: '1',
+                minHeight: '320px',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                color: '#0f172a',
+                fontSize: '15px',
+                lineHeight: '1.6',
+                resize: 'vertical',
+                fontFamily: 'inherit'
+              }}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <label style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#c81e28',
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+              }} title="Upload Job Description File (.txt)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="12" y1="18" x2="12" y2="12"/>
+                  <polyline points="9 15 12 12 15 15"/>
+                </svg>
+                <input 
+                  type="file" 
+                  accept=".txt,.doc,.docx" 
+                  style={{ display: 'none' }} 
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => setJobDescription(event.target.result);
+                      reader.readAsText(e.target.files[0]);
+                    }
+                  }} 
+                />
+              </label>
+            </div>
+          </div>
+        </div>
 
-                {inputMode === 'link' && (
-                  <div>
-                    <label style={{ fontSize: '14px', color: 'var(--text-sub)' }}>Public Resume URL (e.g. Google Drive / GitHub / Portfolio Link)</label>
-                    <input
-                      type="url"
-                      className="input-field"
-                      placeholder="https://example.com/candidate_resume.pdf"
-                      value={resumeUrl}
-                      onChange={(e) => setResumeUrl(e.target.value)}
-                      style={{ marginTop: '10px' }}
-                    />
-                  </div>
-                )}
+        {/* PART 2 OF CONTAINER: Resume Upload side */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '22px' }}>👥</span>
+              <span style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', letterSpacing: '-0.3px' }}>Resumes</span>
+            </div>
+            <span style={{
+              background: 'rgba(200, 30, 40, 0.08)',
+              color: '#c81e28',
+              padding: '5px 14px',
+              borderRadius: '16px',
+              fontSize: '12px',
+              fontWeight: '700',
+              fontFamily: 'var(--font-mono)',
+              border: '1px solid rgba(200, 30, 40, 0.2)'
+            }}>
+              Multi-Upload Supported
+            </span>
+          </div>
 
-                {inputMode === 'text' && (
-                  <div>
-                    <label style={{ fontSize: '14px', color: 'var(--text-sub)' }}>Paste Resume Content</label>
-                    <textarea
-                      className="textarea-field"
-                      placeholder="Paste complete candidate summary, skills, and experience here..."
-                      value={resumeText}
-                      onChange={(e) => setResumeText(e.target.value)}
-                      style={{ minHeight: '230px', marginTop: '10px' }}
-                    />
-                  </div>
-                )}
-
-                <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid var(--border-glass)' }}>
-                  <h4 style={{ fontSize: '15px', color: 'var(--text-sub)', marginBottom: '12px' }}>🛠️ Optional External Platform Overrides</h4>
-                  <div className="grid-2-col">
-                    <div>
-                      <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>GitHub Username</label>
-                      <input
-                        type="text"
-                        className="input-field"
-                        placeholder="e.g. torvalds"
-                        value={githubOverride}
-                        onChange={(e) => setGithubOverride(e.target.value)}
-                        style={{ padding: '10px 14px' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: '12px', color: 'var(--text-muted)' }}>LeetCode / Codeforces Handle</label>
-                      <input
-                        type="text"
-                        className="input-field"
-                        placeholder="e.g. neetcode"
-                        value={leetcodeOverride}
-                        onChange={(e) => setLeetcodeOverride(e.target.value)}
-                        style={{ padding: '10px 14px' }}
-                      />
-                    </div>
-                  </div>
-                </div>
+          {/* Live vs Demo Section mode selection controls matching user request exactly */}
+          <div style={{ marginBottom: '20px' }}>
+            {appMode === 'live' ? (
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#f1f5f9', padding: '6px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                <button
+                  type="button"
+                  onClick={handleSwitchToSingleMode}
+                  style={{
+                    flex: '1 1 auto',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    borderRadius: '10px',
+                    background: evalMode === 'single' ? '#c81e28' : 'transparent',
+                    color: evalMode === 'single' ? '#ffffff' : '#64748b',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                    boxShadow: evalMode === 'single' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
+                  }}
+                >
+                  👤 Single Candidate Mode
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSwitchToBatchMode}
+                  style={{
+                    flex: '1 1 auto',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    borderRadius: '10px',
+                    background: evalMode === 'batch' ? '#c81e28' : 'transparent',
+                    color: evalMode === 'batch' ? '#ffffff' : '#64748b',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                    boxShadow: evalMode === 'batch' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
+                  }}
+                >
+                  👥 Batch Multi-Resume ({countLabel})
+                </button>
               </div>
             ) : (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                  <h3 style={{ fontSize: '22px' }}>👥 Multi-Candidate Resumes</h3>
-                  <span style={{ fontSize: '13px', color: '#34d399', background: 'rgba(16,185,129,0.15)', padding: '4px 12px', borderRadius: '12px', fontWeight: '700', border: '1px solid rgba(16,185,129,0.3)' }}>
-                    {countLabel}
-                  </span>
-                </div>
-                <p style={{ fontSize: '13px', color: 'var(--text-sub)', marginBottom: '16px' }}>
-                  Upload candidate resumes and enter their corresponding additional links. Add or delete entries below; counts stay automatically synchronized!
-                </p>
-
-                {/* Smart Bulk Paste URL Feature */}
-                <div style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.3)', borderRadius: '14px', padding: '16px', marginBottom: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: '700', color: '#f8fafc', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      ⚡ Smart Bulk Paste Links
-                    </span>
-                    <span style={{ fontSize: '12px', color: '#c084fc' }}>
-                      Auto-parse multiple resume URLs from any text block
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
-                    <textarea
-                      className="textarea-field"
-                      placeholder="Paste an email, spreadsheet dump, or text block containing multiple links (e.g. https://drive.google.com/... https://github.com/...)..."
-                      value={bulkPasteText}
-                      onChange={(e) => {
-                        setBulkPasteText(e.target.value);
-                        if (bulkStatus?.type === 'error') setBulkStatus(null);
-                      }}
-                      style={{ minHeight: '68px', padding: '12px 14px', fontSize: '13px', background: 'rgba(15, 23, 42, 0.7)', border: '1px solid rgba(255,255,255,0.1)' }}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                      {bulkStatus ? (
-                        <span style={{ fontSize: '13px', fontWeight: '600', color: bulkStatus.type === 'success' ? '#34d399' : '#fb7185' }}>
-                          {bulkStatus.message}
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                          💡 Automatically extracts valid links and appends them to your candidate entries below
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        className="btn-primary"
-                        onClick={handleBulkParseAndPopulate}
-                        style={{ padding: '8px 20px', fontSize: '13px', background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', boxShadow: '0 4px 15px rgba(59, 130, 246, 0.3)' }}
-                      >
-                        ✨ Extract & Populate
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {candidates.length === 0 ? (
-                  <div style={{ padding: '40px 20px', textAlign: 'center', background: 'rgba(255,255,255,0.015)', borderRadius: '14px', border: '1px dashed var(--border-glass)', color: 'var(--text-muted)', marginBottom: '20px' }}>
-                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>📭</div>
-                    <p style={{ fontSize: '15px', fontWeight: '600', color: '#cbd5e1' }}>0 Resume Entries Entered</p>
-                    <p style={{ fontSize: '13px', marginTop: '6px' }}>You have deleted all candidate entries. Click the button below to add an entry or click "Demo: Batch Comparisons" above!</p>
-                  </div>
-                ) : (
-                  <div style={{ maxHeight: '600px', overflowY: 'auto', paddingRight: '6px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {candidates.map((cand, index) => (
-                      <div key={cand.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-glass)', borderRadius: '14px', padding: '16px', position: 'relative', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '10px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                            <span style={{ fontWeight: '800', color: '#38bdf8', fontSize: '14px', background: 'rgba(56, 189, 248, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{cand.id}</span>
-                            <span style={{ fontSize: '14px', color: '#f8fafc', fontWeight: '700' }}>Candidate #{index + 1} {cand.nameHint && `— ${cand.nameHint}` || (cand.file && `— ${cand.file.name}`)}</span>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div className="tabs-container" style={{ margin: 0, fontSize: '11px', padding: '2px' }}>
-                              <button type="button" className={`tab-btn ${cand.mode === 'file' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'file')} style={{ padding: '4px 8px', fontSize: '11px' }}>File</button>
-                              <button type="button" className={`tab-btn ${cand.mode === 'link' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'link')} style={{ padding: '4px 8px', fontSize: '11px' }}>URL</button>
-                              <button type="button" className={`tab-btn ${cand.mode === 'text' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'text')} style={{ padding: '4px 8px', fontSize: '11px' }}>Text</button>
-                            </div>
-                            <button type="button" onClick={() => handleRemoveCandidate(index)} style={{ background: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', border: '1px solid rgba(244, 63, 94, 0.3)', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px', fontWeight: '700' }} title="Delete Candidate Entry">
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
-
-                        {cand.mode === 'file' && (
-                          <div className="dropzone" style={{ padding: '16px', minHeight: '80px', cursor: 'pointer' }} onClick={() => document.getElementById(`file-upload-${index}`).click()}>
-                            <input id={`file-upload-${index}`} type="file" accept=".pdf,.doc,.docx,.txt" style={{ display: 'none' }} onChange={(e) => {
-                              if (e.target.files && e.target.files[0]) {
-                                handleCandidateChange(index, 'file', e.target.files[0]);
-                              }
-                            }} />
-                            {cand.file ? (
-                              <p style={{ color: 'var(--success)', fontWeight: '600', margin: 0 }}>✓ File: {cand.file.name} {cand.file.size && `(${(cand.file.size/1024).toFixed(1)} KB)`}</p>
-                            ) : (
-                              <p style={{ color: 'var(--text-main)', margin: 0, fontSize: '13px' }}>📁 Click to select candidate PDF or Word resume file</p>
-                            )}
-                          </div>
-                        )}
-
-                        {cand.mode === 'link' && (
-                          <input
-                            type="url"
-                            className="input-field"
-                            placeholder="https://example.com/candidate_resume.pdf"
-                            value={cand.url || ''}
-                            onChange={(e) => handleCandidateChange(index, 'url', e.target.value)}
-                            style={{ fontSize: '13px', padding: '10px 12px' }}
-                          />
-                        )}
-
-                        {cand.mode === 'text' && (
-                          <textarea
-                            className="textarea-field"
-                            placeholder="Paste complete candidate resume text..."
-                            value={cand.text || ''}
-                            onChange={(e) => handleCandidateChange(index, 'text', e.target.value)}
-                            style={{ minHeight: '90px', fontSize: '13px', padding: '10px 12px' }}
-                          />
-                        )}
-
-                        <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px dashed rgba(255,255,255,0.08)' }}>
-                          <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>🔗 Corresponding Additional Profile Links:</span>
-                          <div className="grid-2-col" style={{ gap: '8px' }}>
-                            <input
-                              type="text"
-                              className="input-field"
-                              placeholder="GitHub Username"
-                              value={cand.github || ''}
-                              onChange={(e) => handleCandidateChange(index, 'github', e.target.value)}
-                              style={{ padding: '8px 12px', fontSize: '12px' }}
-                            />
-                            <input
-                              type="text"
-                              className="input-field"
-                              placeholder="LeetCode / Coding Platform Handle"
-                              value={cand.leetcode || ''}
-                              onChange={(e) => handleCandidateChange(index, 'leetcode', e.target.value)}
-                              style={{ padding: '8px 12px', fontSize: '12px' }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                <div style={{ marginTop: '20px' }}>
-                  <button type="button" className="btn-secondary" onClick={handleAddCandidate} style={{ width: '100%', padding: '12px', border: '1px dashed #38bdf8', color: '#38bdf8', fontWeight: '700', borderRadius: '10px' }}>
-                    + Add Another Candidate Resume Entry
-                  </button>
-                </div>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#f1f5f9', padding: '6px', borderRadius: '14px', border: '1px solid rgba(200, 30, 40, 0.25)' }}>
+                <button
+                  type="button"
+                  onClick={handleFillSample}
+                  style={{
+                    flex: '1 1 auto',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    borderRadius: '10px',
+                    background: evalMode === 'single' ? '#c81e28' : 'transparent',
+                    color: evalMode === 'single' ? '#ffffff' : '#64748b',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                    boxShadow: evalMode === 'single' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
+                  }}
+                >
+                  ⚡ Demo: Single Senior Engineer
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFillBatchSample}
+                  style={{
+                    flex: '1 1 auto',
+                    padding: '10px 16px',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    borderRadius: '10px',
+                    background: evalMode === 'batch' ? '#c81e28' : 'transparent',
+                    color: evalMode === 'batch' ? '#ffffff' : '#64748b',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    textAlign: 'center',
+                    boxShadow: evalMode === 'batch' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
+                  }}
+                >
+                  👥 Demo: Batch Comparisons ({countLabel})
+                </button>
               </div>
             )}
           </div>
 
-          {/* Right Column: Target Job Description */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div>
-              <h3 style={{ fontSize: '22px', marginBottom: '16px' }}>🎯 Target Job Description</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '12px' }}>
-                Paste the target job description below. The AI will extract core competencies and check if candidate(s) have verified implementations and semantic skill alignment.
-              </p>
-              <textarea
-                className="textarea-field"
-                placeholder="Paste responsibilities, required programming languages, frameworks, and qualifications..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                style={{ height: evalMode === 'batch' ? '540px' : '310px', transition: 'height 0.3s ease' }}
-              />
+          {/* Dashed dropzone precisely themed for light corporate aesthetic */}
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onClick={() => document.getElementById('resume-main-upload').click()}
+            style={{
+              border: '2px dashed #cbd5e1',
+              borderRadius: '16px',
+              padding: '38px 20px',
+              textAlign: 'center',
+              background: '#f8fafc',
+              cursor: 'pointer',
+              transition: 'all 0.25s ease',
+              marginBottom: '18px'
+            }}
+            className="dropzone-hover-effect"
+          >
+            <input
+              id="resume-main-upload"
+              type="file"
+              multiple={evalMode === 'batch'}
+              accept=".pdf,.doc,.docx,.txt"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  if (evalMode === 'batch' || e.target.files.length > 1) {
+                    handleMultiFileUpload(e.target.files);
+                  } else {
+                    setSelectedFile(e.target.files[0]);
+                    setInputMode('file');
+                    setError('');
+                  }
+                }
+              }}
+            />
+
+            <div style={{
+              width: '54px',
+              height: '54px',
+              background: 'rgba(200, 30, 40, 0.08)',
+              borderRadius: '14px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#c81e28',
+              marginBottom: '16px',
+              boxShadow: '0 4px 14px rgba(200, 30, 40, 0.12)',
+              border: '1px solid rgba(200, 30, 40, 0.2)'
+            }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/>
+                <path d="M12 12v9"/>
+                <path d="m16 16-4-4-4 4"/>
+              </svg>
             </div>
 
-            <div style={{ marginTop: '26px', textAlign: 'right' }}>
-              <button type="submit" className="btn-primary" style={{ width: '100%', padding: '16px', fontSize: '17px', background: evalMode === 'batch' ? 'linear-gradient(135deg, #10b981, #059669)' : undefined }}>
-                {evalMode === 'batch' ? `⚡ Score & Deep Verify ${enteredCount} ${enteredCount === 1 ? 'Candidate Entry' : 'Candidate Entries'} in Table` : '⚡ Run Deep Verification & AI Scoring'}
+            {evalMode === 'single' && selectedFile ? (
+              <div>
+                <p style={{ color: '#059669', fontWeight: '700', fontSize: '17px', marginBottom: '4px' }}>✓ Selected: {selectedFile.name}</p>
+                <p style={{ color: '#64748b', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{(selectedFile.size/1024).toFixed(1)} KB — Ready for analysis</p>
+              </div>
+            ) : (
+              <div>
+                <p style={{ fontSize: '17px', fontWeight: '700', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.2px' }}>
+                  Click to upload or drag & drop
+                </p>
+                <p style={{ fontSize: '13px', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
+                  PDF, DOCX (Max 10 files)
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* SINGLE EVALUATION CONTROLS & DEMO TEXT PREVIEW */}
+          {evalMode === 'single' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '8px', borderTop: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ fontSize: '13px', color: '#334155', fontWeight: '700' }}>Or input via alternative formats:</span>
+                <div className="tabs-container" style={{ margin: 0, padding: '3px', background: '#f1f5f9' }}>
+                  <button type="button" className={`tab-btn ${inputMode === 'file' ? 'active' : ''}`} onClick={() => setInputMode('file')} style={{ fontSize: '12px', padding: '5px 12px' }}>File</button>
+                  <button type="button" className={`tab-btn ${inputMode === 'link' ? 'active' : ''}`} onClick={() => setInputMode('link')} style={{ fontSize: '12px', padding: '5px 12px' }}>URL Link</button>
+                  <button type="button" className={`tab-btn ${inputMode === 'text' ? 'active' : ''}`} onClick={() => setInputMode('text')} style={{ fontSize: '12px', padding: '5px 12px' }}>Paste Text</button>
+                </div>
+              </div>
+
+              {inputMode === 'link' && (
+                <input
+                  type="url"
+                  className="input-field"
+                  placeholder="https://example.com/candidate_resume.pdf"
+                  value={resumeUrl}
+                  onChange={(e) => setResumeUrl(e.target.value)}
+                  style={{ fontSize: '14px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                />
+              )}
+
+              {inputMode === 'text' && (
+                <textarea
+                  className="textarea-field"
+                  placeholder="Paste candidate resume text or summary here..."
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                  style={{ minHeight: '120px', fontSize: '14px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                />
+              )}
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '4px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', display: 'block', marginBottom: '10px' }}>
+                  ⚡ Optional GitHub & Coding Platform Verification:
+                </span>
+                <div className="grid-2-col" style={{ gap: '12px' }}>
+                  <div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="GitHub Username (e.g. torvalds)"
+                      value={githubOverride}
+                      onChange={(e) => setGithubOverride(e.target.value)}
+                      style={{ fontSize: '13px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      className="input-field"
+                      placeholder="LeetCode Username (e.g. neetcode)"
+                      value={leetcodeOverride}
+                      onChange={(e) => setLeetcodeOverride(e.target.value)}
+                      style={{ fontSize: '13px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* BATCH EVALUATION CONTROLS & SMART BULK PASTE */}
+          {evalMode === 'batch' && (
+            <div style={{ marginTop: '6px' }}>
+              {/* Smart Bulk Paste URL Feature */}
+              <div style={{ background: 'rgba(200, 30, 40, 0.04)', border: '1px solid rgba(200, 30, 40, 0.2)', borderRadius: '14px', padding: '16px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    ⚡ Smart Bulk Paste Links
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#c81e28', fontWeight: '600' }}>
+                    Auto-parse multiple resume URLs from any text block
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                  <textarea
+                    className="textarea-field"
+                    placeholder="Paste an email, spreadsheet dump, or text block containing multiple links (e.g. https://drive.google.com/... https://github.com/...)..."
+                    value={bulkPasteText}
+                    onChange={(e) => {
+                      setBulkPasteText(e.target.value);
+                      if (bulkStatus?.type === 'error') setBulkStatus(null);
+                    }}
+                    style={{ minHeight: '70px', padding: '12px 14px', fontSize: '13px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    {bulkStatus ? (
+                      <span style={{ fontSize: '13px', fontWeight: '600', color: bulkStatus.type === 'success' ? '#059669' : '#dc2626' }}>
+                        {bulkStatus.message}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
+                        💡 Extracts links automatically and syncs directly with candidate entries
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleBulkParseAndPopulate}
+                      style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '10px', background: '#c81e28', color: '#fff', fontWeight: '700', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(200, 30, 40, 0.25)' }}
+                    >
+                      ✨ Extract & Populate
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Candidate Entry List */}
+              <div style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
+                {candidates.map((cand, index) => (
+                  <div key={cand.id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontWeight: '800', color: '#c81e28', fontSize: '13px', background: 'rgba(200, 30, 40, 0.08)', padding: '2px 8px', borderRadius: '6px', border: '1px solid rgba(200, 30, 40, 0.15)' }}>{cand.id}</span>
+                        <span style={{ fontSize: '14px', color: '#0f172a', fontWeight: '700' }}>Candidate #{index + 1} {cand.nameHint && `— ${cand.nameHint}` || (cand.file && `— ${cand.file.name}`)}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="tabs-container" style={{ margin: 0, padding: '2px', background: '#f1f5f9' }}>
+                          <button type="button" className={`tab-btn ${cand.mode === 'file' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'file')} style={{ padding: '3px 8px', fontSize: '11px' }}>File</button>
+                          <button type="button" className={`tab-btn ${cand.mode === 'link' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'link')} style={{ padding: '3px 8px', fontSize: '11px' }}>URL</button>
+                          <button type="button" className={`tab-btn ${cand.mode === 'text' ? 'active' : ''}`} onClick={() => handleCandidateChange(index, 'mode', 'text')} style={{ padding: '3px 8px', fontSize: '11px' }}>Text</button>
+                        </div>
+                        <button type="button" onClick={() => handleRemoveCandidate(index)} style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', padding: '4px 8px', cursor: 'pointer', fontSize: '12px' }} title="Delete Candidate">
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+
+                    {cand.mode === 'file' && (
+                      <div className="dropzone" style={{ padding: '12px', minHeight: '60px', background: '#ffffff', borderColor: '#cbd5e1', cursor: 'pointer' }} onClick={() => document.getElementById(`file-upload-${index}`).click()}>
+                        <input id={`file-upload-${index}`} type="file" accept=".pdf,.doc,.docx,.txt" style={{ display: 'none' }} onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            handleCandidateChange(index, 'file', e.target.files[0]);
+                          }
+                        }} />
+                        {cand.file ? (
+                          <p style={{ color: '#059669', fontWeight: '700', margin: 0, fontSize: '13px' }}>✓ File: {cand.file.name} ({(cand.file.size/1024).toFixed(1)} KB)</p>
+                        ) : (
+                          <p style={{ color: '#64748b', margin: 0, fontSize: '13px' }}>📁 Click to attach candidate PDF / Word file</p>
+                        )}
+                      </div>
+                    )}
+
+                    {cand.mode === 'link' && (
+                      <input
+                        type="url"
+                        className="input-field"
+                        placeholder="https://example.com/candidate_resume.pdf"
+                        value={cand.url || ''}
+                        onChange={(e) => handleCandidateChange(index, 'url', e.target.value)}
+                        style={{ fontSize: '13px', padding: '10px 12px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                      />
+                    )}
+
+                    {cand.mode === 'text' && (
+                      <textarea
+                        className="textarea-field"
+                        placeholder="Paste candidate resume text..."
+                        value={cand.text || ''}
+                        onChange={(e) => handleCandidateChange(index, 'text', e.target.value)}
+                        style={{ minHeight: '75px', fontSize: '13px', padding: '10px 12px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                      />
+                    )}
+
+                    <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px dashed #e2e8f0' }}>
+                      <div className="grid-2-col" style={{ gap: '8px' }}>
+                        <input
+                          type="text"
+                          className="input-field"
+                          placeholder="GitHub Username"
+                          value={cand.github || ''}
+                          onChange={(e) => handleCandidateChange(index, 'github', e.target.value)}
+                          style={{ fontSize: '12px', padding: '8px 10px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                        />
+                        <input
+                          type="text"
+                          className="input-field"
+                          placeholder="LeetCode Handle"
+                          value={cand.leetcode || ''}
+                          onChange={(e) => handleCandidateChange(index, 'leetcode', e.target.value)}
+                          style={{ fontSize: '12px', padding: '8px 10px', background: '#ffffff', borderColor: '#cbd5e1' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleAddCandidate}
+                style={{ width: '100%', padding: '12px', background: '#ffffff', color: '#c81e28', border: '1px dashed rgba(200, 30, 40, 0.4)', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}
+              >
+                ➕ Add Another Resume Slot
               </button>
             </div>
-          </div>
+          )}
         </div>
-      </form>
+        {/* End of PART 2 and Master Combined Container */}
+      </div>
+
+      {/* ANALYZE NOW BUTTON themed after the rich red Start New Search button in screen.png */}
+      <button
+        type="button"
+        onClick={handleAnalyze}
+        disabled={loading}
+        style={{
+          width: '100%',
+          padding: '18px 24px',
+          background: '#c81e28',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '16px',
+          fontSize: '18px',
+          fontWeight: '700',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          boxShadow: '0 6px 20px rgba(200, 30, 40, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          transition: 'all 0.2s',
+          letterSpacing: '-0.2px',
+          opacity: loading ? 0.7 : 1
+        }}
+      >
+        {loading ? (
+          <>
+            <span className="loading-spinner" style={{ width: '22px', height: '22px', borderWidth: '3px' }}></span>
+            <span>Evaluating Candidate Satisfaction...</span>
+          </>
+        ) : (
+          <>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" style={{ color: '#ffffff' }}>
+              <path d="M13 2.05v8.95h5.95l-7.95 11v-8.95H5.05l7.95-11z"/>
+            </svg>
+            <span>Analyze Now</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14"/>
+              <path d="m12 5 7 7-7 7"/>
+            </svg>
+          </>
+        )}
+      </button>
     </div>
   );
 }

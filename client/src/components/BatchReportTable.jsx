@@ -121,14 +121,6 @@ export default function BatchReportTable({ batchData, onNewAnalyze }) {
           </span>
           <h2 style={{ fontSize: '32px', fontWeight: '800', marginTop: '4px' }}>Multi-Candidate ATS Rankings</h2>
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px' }}>
-          <button className="btn-secondary" onClick={handleExportBatchCSV}>
-            📥 Export Batch CSV
-          </button>
-          <button className="btn-primary" onClick={() => setShowConfirm(true)} style={{ padding: '10px 20px', fontSize: '14px' }}>
-            🔄 Evaluate Another Batch
-          </button>
-        </div>
       </div>
 
       <div className="glass-card" style={{ padding: '28px', marginBottom: '30px' }}>
@@ -170,27 +162,28 @@ export default function BatchReportTable({ batchData, onNewAnalyze }) {
                     className="batch-row" 
                     onClick={() => handleSelectCandidate(candidate)}
                     style={{ 
-                      background: 'rgba(255, 255, 255, 0.03)', 
+                      background: '#ffffff', 
                       cursor: 'pointer',
                       transition: 'all 0.2s ease',
-                      borderRadius: '12px'
+                      borderRadius: '12px',
+                      boxShadow: '0 1px 4px rgba(0,0,0,0.03)'
                     }}
                   >
-                    <td style={{ padding: '18px 20px', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', fontWeight: '700', color: '#38bdf8', borderTop: '1px solid var(--border-glass)', borderBottom: '1px solid var(--border-glass)', borderLeft: '1px solid var(--border-glass)' }}>
-                      <span style={{ display: 'inline-block', padding: '4px 10px', background: 'rgba(56, 189, 248, 0.1)', borderRadius: '6px', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                    <td style={{ padding: '18px 20px', borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px', fontWeight: '700', color: '#c81e28', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', borderLeft: '1px solid #e2e8f0' }}>
+                      <span style={{ display: 'inline-block', padding: '4px 10px', background: 'rgba(200, 30, 40, 0.08)', borderRadius: '6px', border: '1px solid rgba(200, 30, 40, 0.2)' }}>
                         {cid}
                       </span>
                     </td>
-                    <td style={{ padding: '18px 20px', fontSize: '16px', fontWeight: '600', color: '#f8fafc', borderTop: '1px solid var(--border-glass)', borderBottom: '1px solid var(--border-glass)' }}>
+                    <td style={{ padding: '18px 20px', fontSize: '16px', fontWeight: '700', color: '#0f172a', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ fontSize: '20px' }}>👤</span>
                         <div>
                           <div>{candidate.candidateName || 'Unnamed Candidate'}</div>
-                          {candidate.filename && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '400' }}>📄 {candidate.filename}</div>}
+                          {candidate.filename && <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '500' }}>📄 {candidate.filename}</div>}
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '18px 20px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'right', borderTop: '1px solid var(--border-glass)', borderBottom: '1px solid var(--border-glass)', borderRight: '1px solid var(--border-glass)' }}>
+                    <td style={{ padding: '18px 20px', borderTopRightRadius: '12px', borderBottomRightRadius: '12px', textAlign: 'right', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', borderRight: '1px solid #e2e8f0' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px', flexWrap: 'wrap' }}>
                         <span style={{ 
                           fontSize: '18px', fontWeight: '800', padding: '6px 16px', borderRadius: '20px', 
@@ -209,9 +202,9 @@ export default function BatchReportTable({ batchData, onNewAnalyze }) {
                             padding: '8px 16px',
                             fontSize: '13px',
                             fontWeight: '700',
-                            color: '#c084fc',
-                            border: '1px solid rgba(192, 132, 252, 0.4)',
-                            background: 'rgba(168, 85, 247, 0.1)',
+                            color: '#c81e28',
+                            border: '1px solid rgba(200, 30, 40, 0.3)',
+                            background: 'rgba(200, 30, 40, 0.06)',
                             borderRadius: '8px',
                             cursor: 'pointer',
                             display: 'inline-flex',
@@ -231,17 +224,8 @@ export default function BatchReportTable({ batchData, onNewAnalyze }) {
         </div>
       </div>
 
-      <div style={{ padding: '16px 20px', background: 'rgba(168, 85, 247, 0.06)', borderRadius: '12px', border: '1px solid rgba(168,85,247,0.2)', color: '#d8b4fe', fontSize: '14px' }}>
-        ℹ️ <strong>Recruiter Note:</strong> Candidates are automatically sorted descending by ATS overall score. Click on any row or hit the <strong>⚡ Deep Verify ↗</strong> button to open the complete deep tech verification report, including real GitHub repositories checked and problem-solving benchmarks.
-      </div>
-
-      <div className="export-bar" style={{ marginTop: '30px' }}>
-        <button className="btn-secondary" onClick={handleExportBatchCSV}>
-          📥 Export Batch CSV Report
-        </button>
-        <button className="btn-primary" onClick={() => setShowConfirm(true)}>
-          🔄 Try New Analysis
-        </button>
+      <div style={{ padding: '16px 20px', background: 'rgba(200, 30, 40, 0.04)', borderRadius: '12px', border: '1px solid rgba(200, 30, 40, 0.2)', color: '#334155', fontSize: '14px', fontWeight: '500' }}>
+        ℹ️ <strong style={{ color: '#0f172a' }}>Recruiter Note:</strong> Candidates are automatically sorted descending by ATS overall score. Click on any row or hit the <strong style={{ color: '#c81e28' }}>⚡ Deep Verify ↗</strong> button to open the complete deep tech verification report, including real GitHub repositories checked and problem-solving benchmarks.
       </div>
     </div>
   );

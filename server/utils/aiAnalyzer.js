@@ -7,7 +7,7 @@ Return STRICT JSON only. Do not wrap in markdown or backticks. Do not include ex
 IMPORTANT EVALUATION & MARKING RULES:
 1. SEMANTIC SIMILARITY & EQUIVALENCY CHECKING: Do not rely on rigid string matching. Smartly evaluate candidate skills against Job Description requirements. Recognize conceptual and equivalent technologies (e.g., MySQL vs PostgreSQL, GCP vs AWS, Express vs Fastify, Next.js vs React.js, Docker vs Containerization).
 2. RESUME PROJECT VERIFICATION: For every development tech stack or capability expected in the Job Description, check if the candidate actually applied it inside a REAL PROJECT or work achievement described in their resume, rather than merely listing it as a buzzword in a skills list. Provide brief proof in "project_proof".
-3. VERIFIABLE TECH STACK FOR GITHUB: In "verifiable_tech_stack_for_github", return ONLY concrete programming languages, frameworks, databases, libraries, and CLI tools (e.g. JavaScript, TypeScript, React.js, Node.js, Express, MongoDB, PostgreSQL, Docker, AWS, Git, Python, C++, Java, Rust). NEVER INCLUDE abstract concepts, soft skills, or competitive coding brands.
+3. VERIFIABLE TECH STACK FOR GITHUB: In "verifiable_tech_stack_for_github", return ONLY those programming languages, frameworks, databases, libraries, and CLI tools THAT ARE EXPLICITLY MENTIONED IN THE JOB DESCRIPTION OR DIRECTLY ALIGNED WITH THE JD's CORE DEVELOPMENT REQUIREMENT (e.g., if the JD asks for React and Node, only list React.js, Node.js, Express, Git, etc. Do NOT include random skills found only in the candidate's resume such as Keras, Rasterio, or Seaborn if they have no relevance or alignment with the Job Description). NEVER INCLUDE abstract concepts, soft skills, or competitive coding brands.
 
 Use this exact JSON schema:
 {

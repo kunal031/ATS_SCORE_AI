@@ -5,6 +5,27 @@
 export const exportToCSV = (report) => {
   if (!report) return;
 
+  if (report.isBatch && Array.isArray(report.results)) {
+    const headers = ['Resume ID', 'Candidate Name', 'ATS Score', 'GitHub Verified', 'Coding Platforms', 'Executive Takeaway'];
+    const rows = report.results.map(c => [
+      `"${c.resumeId || c.id || '-'}"`,
+      `"${(c.candidateName || 'Candidate').replace(/"/g, '""')}"`,
+      `"${c.scoreSummary?.overallScore || 0}%"`,
+      `"${c.githubVerification?.username ? '@' + c.githubVerification.username : 'None'}"`,
+      `"${c.codingCompetency?.leetcode ? '@' + c.codingCompetency.leetcode.username : 'None'}"`,
+      `"${(c.aiFeedback?.overall_assessment || '').replace(/"/g, '""')}"`
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `Batch_ATS_Evaluation_Report_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    return;
+  }
+
   const score = report.scoreSummary?.overallScore || 0;
   const status = report.scoreSummary?.statusLabel || "N/A";
   const breakdown = report.scoreSummary?.breakdown || {};
@@ -80,6 +101,28 @@ export const exportToCSV = (report) => {
  */
 export const copyForGoogleSheets = async (report) => {
   if (!report) return false;
+
+  if (report.isBatch && Array.isArray(report.results)) {
+    const tsvLines = [
+      ["Resume ID", "Candidate Name", "ATS Score", "GitHub Verified", "Coding Platforms", "Executive Takeaway"].join("\t")
+    ];
+    report.results.forEach(c => {
+      tsvLines.push([
+        c.resumeId || c.id || '-',
+        c.candidateName || 'Candidate',
+        `${c.scoreSummary?.overallScore || 0}%`,
+        c.githubVerification?.username ? `@${c.githubVerification.username}` : 'None',
+        c.codingCompetency?.leetcode ? `@${c.codingCompetency.leetcode.username}` : 'None',
+        (c.aiFeedback?.overall_assessment || '').replace(/\s+/g, ' ')
+      ].join("\t"));
+    });
+    try {
+      await navigator.clipboard.writeText(tsvLines.join("\n"));
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
 
   const score = report.scoreSummary?.overallScore || 0;
   const status = report.scoreSummary?.statusLabel || "N/A";
