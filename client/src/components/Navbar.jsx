@@ -24,20 +24,7 @@ export default function Navbar({ activeTab, onTabChange, hasReport, isBatch, app
   };
 
   return (
-    <header style={{
-      height: '76px',
-      minHeight: '76px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '0 32px',
-      borderBottom: '1px solid #e2e8f0',
-      background: '#ffffff',
-      position: 'sticky',
-      top: 0,
-      zIndex: 100,
-      boxShadow: '0 1px 4px rgba(0, 0, 0, 0.01)'
-    }}>
+    <header className="navbar-container">
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '6px 14px', borderRadius: '10px' }}>
           <span style={{ 

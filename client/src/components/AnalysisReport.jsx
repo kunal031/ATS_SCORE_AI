@@ -84,17 +84,7 @@ export default function AnalysisReport({ report, onNewAnalyze }) {
       )}
 
       {/* MASTER COMBINED CONTAINER: Part 1 (SMART JD SATISFACTION) & Part 2 (GitHub Tech Stack Proof + Algorithmic Coding Platforms) */}
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '24px',
-        padding: '32px',
-        marginBottom: '32px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-        gap: '32px'
-      }}>
+      <div className="split-container-grid">
         {/* PART 1 OF CONTAINER: SMART JD SATISFACTION */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#f8fafc', border: `1px solid ${scoreSummary.color || '#c81e28'}40`, borderRadius: '20px', padding: '40px 28px', textAlign: 'center', boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.02)' }}>
           <span style={{ fontSize: '15px', color: 'var(--text-sub)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '20px' }}>

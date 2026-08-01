@@ -502,17 +502,7 @@ export default function Dashboard({
       )}
 
       {/* MASTER COMBINED CONTAINER: 2-Part Split Layout for Job Description and Resume Upload */}
-      <div style={{
-        background: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '24px',
-        padding: '28px',
-        marginBottom: '28px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.04)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-        gap: '32px'
-      }}>
+      <div className="split-container-grid">
         {/* PART 1 OF CONTAINER: Job Description side */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -610,97 +600,6 @@ export default function Dashboard({
             }}>
               Multi-Upload Supported
             </span>
-          </div>
-
-          {/* Live vs Demo Section mode selection controls matching user request exactly */}
-          <div style={{ marginBottom: '20px' }}>
-            {appMode === 'live' ? (
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#f1f5f9', padding: '6px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                <button
-                  type="button"
-                  onClick={handleSwitchToSingleMode}
-                  style={{
-                    flex: '1 1 auto',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    borderRadius: '10px',
-                    background: evalMode === 'single' ? '#c81e28' : 'transparent',
-                    color: evalMode === 'single' ? '#ffffff' : '#64748b',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textAlign: 'center',
-                    boxShadow: evalMode === 'single' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
-                  }}
-                >
-                  👤 Single Candidate Mode
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSwitchToBatchMode}
-                  style={{
-                    flex: '1 1 auto',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    borderRadius: '10px',
-                    background: evalMode === 'batch' ? '#c81e28' : 'transparent',
-                    color: evalMode === 'batch' ? '#ffffff' : '#64748b',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textAlign: 'center',
-                    boxShadow: evalMode === 'batch' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
-                  }}
-                >
-                  👥 Batch Multi-Resume ({countLabel})
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#f1f5f9', padding: '6px', borderRadius: '14px', border: '1px solid rgba(200, 30, 40, 0.25)' }}>
-                <button
-                  type="button"
-                  onClick={handleFillSample}
-                  style={{
-                    flex: '1 1 auto',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    borderRadius: '10px',
-                    background: evalMode === 'single' ? '#c81e28' : 'transparent',
-                    color: evalMode === 'single' ? '#ffffff' : '#64748b',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textAlign: 'center',
-                    boxShadow: evalMode === 'single' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
-                  }}
-                >
-                  ⚡ Demo: Single Senior Engineer
-                </button>
-                <button
-                  type="button"
-                  onClick={handleFillBatchSample}
-                  style={{
-                    flex: '1 1 auto',
-                    padding: '10px 16px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    borderRadius: '10px',
-                    background: evalMode === 'batch' ? '#c81e28' : 'transparent',
-                    color: evalMode === 'batch' ? '#ffffff' : '#64748b',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    textAlign: 'center',
-                    boxShadow: evalMode === 'batch' ? '0 3px 12px rgba(200, 30, 40, 0.25)' : 'none'
-                  }}
-                >
-                  👥 Demo: Batch Comparisons ({countLabel})
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Dashed dropzone precisely themed for light corporate aesthetic */}

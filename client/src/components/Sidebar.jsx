@@ -25,18 +25,7 @@ export default function Sidebar({ appMode, evalMode, onSelectMode, activeTab, on
   });
 
   return (
-    <aside style={{
-      width: '290px',
-      minWidth: '290px',
-      background: '#ffffff',
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'sticky',
-      top: 0,
-      height: '100vh',
-      zIndex: 110,
-      boxShadow: '1px 0 0 #e2e8f0, 4px 0 16px rgba(0, 0, 0, 0.02)'
-    }}>
+    <aside className="sidebar-container">
       {/* TOP-LEFT CORNER: Logo & Title (merges cleanly into Navbar across the top) */}
       <div 
         onClick={() => onTabChange('dashboard')} 

@@ -60,7 +60,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc', width: '100%' }}>
+    <div className="app-root-layout">
       <Sidebar 
         appMode={appMode} 
         evalMode={evalMode} 
@@ -81,7 +81,7 @@ export default function App() {
           onNewAnalyze={handleReset}
         />
 
-        <main style={{ padding: '36px', flex: 1, maxWidth: '1500px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+        <main className="main-content-area">
           {activeTab === 'dashboard' && (
             <Dashboard 
               onComplete={handleEvaluationComplete}
