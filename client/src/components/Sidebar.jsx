@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Sidebar({ appMode, evalMode, onSelectMode, activeTab, onTabChange }) {
+export default function Sidebar({ appMode, evalMode, onSelectMode, activeTab, onTabChange, batchCount = 0 }) {
   const isSelected = (mode, evalType) => {
     return activeTab === 'dashboard' && appMode === mode && evalMode === evalType;
   };

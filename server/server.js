@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
 
 // Load environment variables (from local dir or parent dir)
@@ -17,7 +16,6 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Routes
-app.use("/auth", authRoutes);
 app.use("/resume", resumeRoutes);
 
 app.get("/", (req, res) => res.send("ATS Generator API Running"));
@@ -38,4 +36,3 @@ const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
-

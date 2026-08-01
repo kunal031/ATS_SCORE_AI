@@ -5,6 +5,7 @@ import { analyzeWithAI } from "../utils/aiAnalyzer.js";
 import { extractProfiles } from "../utils/profileExtractor.js";
 import { verifyGithubTechStack } from "../utils/githubVerifier.js";
 import { verifyCodingPlatforms } from "../utils/codingPlatformVerifier.js";
+import { validateDocumentGate } from "../utils/documentValidator.js";
 import Resume from "../models/Resume.js";
 
 export const uploadResume = async (req, res) => {
@@ -63,6 +64,25 @@ function extractCandidateName(text, filename = "", defaultIndex = 1, githubUser 
 }
 
 async function performFullEvaluation(targetText, jobDescription, customProfiles = {}, filename = "", resumeId = "RES-001", index = 1) {
+  // ====================================================================
+  // [STAGE 1: DOCUMENT VALIDATION GATE]
+  // Zero-tolerance validation: Abort Stage 2 immediately if not a genuine resume
+  // ====================================================================
+  console.log(`[STAGE 1: DOCUMENT VALIDATION GATE] Verifying document credibility for ${filename || resumeId}...`);
+  const stage1 = validateDocumentGate(targetText, filename);
+  if (!stage1.is_resume) {
+    console.warn(`[STAGE 1 FAILED: DOCUMENT VALIDATION GATE] Aborting Stage 2 for ${filename || resumeId}: ${stage1.reason}`);
+    const abortErr = new Error(`[STAGE 1 FAILED: DOCUMENT VALIDATION GATE] Aborting Stage 2 matching. Document "${filename || resumeId}" rejected: ${stage1.reason}`);
+    abortErr.status = 400;
+    abortErr.isStage1Failure = true;
+    abortErr.reason = stage1.reason;
+    throw abortErr;
+  }
+  console.log(`[STAGE 1 PASSED] Verified as genuine professional resume/CV. Proceeding to Stage 2: Job Description and Resume Checking.`);
+
+  // ====================================================================
+  // [STAGE 2: JOB DESCRIPTION AND RESUME CHECKING]
+  // ====================================================================
   // 1. Keyword Extraction & Profiles Discovery
   const jdKeywords = extractKeywords(jobDescription);
   const resumeKeywords = extractKeywords(targetText);
@@ -102,17 +122,19 @@ async function performFullEvaluation(targetText, jobDescription, customProfiles 
 
   // 3. Perform Concurrent External Verifications (GitHub Repos & Coding Platforms)
   const [githubResult, codingResult] = await Promise.all([
-    verifyGithubTechStack(detectedProfiles.github, requiredTechStack),
+    verifyGithubTechStack(detectedProfiles.github, jdKeywords, jobDescription),
     verifyCodingPlatforms(detectedProfiles)
   ]);
 
-  // 4. Compute Weighted 100-Point Rubric Score utilizing smart AI semantic similarity
+  // 4. Compute Weighted 100-Point Rubric Score utilizing smart AI semantic similarity & keyword density
   const scoreSummary = calculateMultiCriteriaATSScore(
     jdKeywords, 
     resumeKeywords, 
     githubResult, 
     codingResult, 
-    aiAnalysis
+    aiAnalysis,
+    jobDescription,
+    targetText
   );
 
   // 5. Construct Integrated Assessment Output
@@ -163,7 +185,8 @@ export const analyzeResume = async (req, res) => {
     res.json(report);
   } catch (err) {
     console.error("Analyze Resume Fatal Error:", err);
-    res.status(500).json({ error: err.message || "Resume analysis failed during evaluation." });
+    const statusCode = err.status || (err.isStage1Failure ? 400 : 500);
+    res.status(statusCode).json({ error: err.message || "Resume analysis failed during evaluation." });
   }
 };
 
@@ -191,7 +214,34 @@ export const analyzeBatch = async (req, res) => {
       const filename = item.filename || `candidate_${idx + 1}.pdf`;
       const customProfiles = item.customProfiles || {};
 
-      return await performFullEvaluation(targetText, jobDescription, customProfiles, filename, id, idx + 1);
+      try {
+        return await performFullEvaluation(targetText, jobDescription, customProfiles, filename, id, idx + 1);
+      } catch (e) {
+        if (e.isStage1Failure) {
+          console.warn(`[BATCH STAGE 1 REJECTION] Candidate ${id} (${filename}): ${e.reason}`);
+          return {
+            success: false,
+            is_resume: false,
+            stage1_status: "FAILED",
+            resumeId: id,
+            candidateName: `${filename || id} [REJECTED: NON-RESUME]`,
+            filename: filename || `Candidate_${idx + 1}.pdf`,
+            timestamp: new Date().toISOString(),
+            error: e.reason,
+            scoreSummary: {
+              overallScore: 0,
+              statusLabel: "Stage 1 Rejected (Not a Resume)",
+              color: "#f43f5e",
+              atsCompatibility: "STAGE 1 REJECTED (NOT A RESUME)",
+              breakdown: { keywordMatch: 0, githubProof: 0, codingCompetency: 0, aiAssessment: 0 }
+            },
+            aiFeedback: {
+              overall_assessment: `🛑 [STAGE 1 FAILED: DOCUMENT VALIDATION GATE] Stage 2 matching aborted. ${e.reason}`
+            }
+          };
+        }
+        throw e;
+      }
     });
 
     const results = await Promise.all(evalPromises);

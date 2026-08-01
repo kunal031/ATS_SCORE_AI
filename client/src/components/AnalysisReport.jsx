@@ -83,6 +83,26 @@ export default function AnalysisReport({ report, onNewAnalyze }) {
         </div>
       )}
 
+      {/* STAGE 1 REJECTION BANNER (Document Validation Gate) */}
+      {(report.is_resume === false || report.stage1_status === 'FAILED') && (
+        <div style={{ background: '#fef2f2', border: '2px solid #dc2626', padding: '22px', borderRadius: '16px', marginBottom: '24px', boxShadow: '0 4px 16px rgba(220, 38, 38, 0.12)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '28px' }}>🛑</span>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#991b1b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                [STAGE 1: DOCUMENT VALIDATION GATE FAILED] — Stage 2 Aborted
+              </h3>
+              <p style={{ color: '#dc2626', fontSize: '14px', fontWeight: '700', marginTop: '4px', marginBottom: 0 }}>
+                {report.error || "Document rejected: Payload is not recognized as a genuine professional resume/CV."}
+              </p>
+            </div>
+          </div>
+          <p style={{ color: '#7f1d1d', fontSize: '13px', margin: '6px 0 0 0', paddingLeft: '42px', lineHeight: '1.5' }}>
+            Our deterministic, zero-tolerance ATS parsing engine requires valid contact placeholders (email/phone), timeline indicators (dates/years), and experience/education structural headers. Non-resume formats such as cover letters, essays, and invoices are disqualified instantly before Stage 2 Job Description matching.
+          </p>
+        </div>
+      )}
+
       {/* MASTER COMBINED CONTAINER: Part 1 (SMART JD SATISFACTION) & Part 2 (GitHub Tech Stack Proof + Algorithmic Coding Platforms) */}
       <div className="split-container-grid">
         {/* PART 1 OF CONTAINER: SMART JD SATISFACTION */}
@@ -97,83 +117,11 @@ export default function AnalysisReport({ report, onNewAnalyze }) {
             {safeRender(scoreSummary.statusLabel, 'VERIFIED MATCH')}
           </div>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6', maxWidth: '380px', margin: '0' }}>
-            Marking scheme based directly on verified JD requirement satisfaction across Resume Projects & GitHub Repos (no static weights or simple string matching).
+            Marking scheme based directly on verified JD requirement satisfaction across Candidate Resume Projects & Algorithmic Competency (no static weights or simple string matching).
           </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', display: 'flex', flexDirection: 'column', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', margin: 0 }}>💻 GitHub Tech Stack Proof</h3>
-              {github.username ? (
-                <a href={`https://github.com/${github.username}`} target="_blank" rel="noreferrer" style={{ fontSize: '14px', color: '#0284c7', textDecoration: 'none', fontWeight: '600', background: '#e0f2fe', padding: '5px 12px', borderRadius: '8px', border: '1px solid #bae6fd' }}>
-                  @{github.username} ↗
-                </a>
-              ) : (
-                <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No GitHub linked</span>
-              )}
-            </div>
-
-            {github.techVerification && github.techVerification.some(t => t.sampleRepos && t.sampleRepos.length > 0) ? (
-              <div>
-                <h4 style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Verified Sample Repositories</span>
-                  {Array.from(new Set(github.techVerification.flatMap(t => t.sampleRepos || []).map(r => r.url))).length > 3 && (
-                    <span style={{ fontSize: '11px', color: '#c81e28', textTransform: 'none', fontWeight: '600' }}>Scroll for more ↓</span>
-                  )}
-                </h4>
-                <div style={{ 
-                  maxHeight: '164px',
-                  minHeight: '164px',
-                  overflowY: 'auto', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '10px',
-                  paddingRight: '4px',
-                  scrollSnapType: 'y mandatory'
-                }}>
-                  {Array.from(new Set(
-                    github.techVerification.flatMap(t => t.sampleRepos || []).map(r => r.url)
-                  )).map((url, idx) => {
-                    const repoObj = github.techVerification.flatMap(t => t.sampleRepos || []).find(r => r.url === url);
-                    return (
-                      <div key={idx} className="repo-card" style={{ 
-                        background: '#ffffff', 
-                        border: '1px solid #e2e8f0', 
-                        padding: '12px 16px', 
-                        borderRadius: '12px', 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        minHeight: '48px',
-                        maxHeight: '48px',
-                        scrollSnapAlign: 'start',
-                        flexShrink: 0,
-                        boxSizing: 'border-box',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-                      }}>
-                        <span style={{ fontWeight: '600', fontSize: '14px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '68%' }}>
-                          📦 <a href={repoObj?.url} target="_blank" rel="noreferrer" style={{ color: '#0f172a', textDecoration: 'none', fontWeight: '700' }}>{repoObj?.name || 'project-repo'}</a>
-                        </span>
-                        <span style={{ fontSize: '12px', color: '#c81e28', background: 'rgba(200, 30, 40, 0.08)', border: '1px solid rgba(200, 30, 40, 0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: '700', flexShrink: 0 }}>
-                          {repoObj?.language || 'Code'}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: '20px 0' }}>No specific matching technical repositories required by Job Description.</p>
-            )}
-
-            {github.isFallback && (
-              <div style={{ fontSize: '12px', color: '#b45309', marginTop: '14px', background: '#fef3c7', padding: '10px 14px', borderRadius: '8px', border: '1px solid #fde68a', fontWeight: '600' }}>
-                ℹ️ {github.note || 'GitHub API rate-limited; displaying estimated candidate technical assessment.'}
-              </div>
-            )}
-          </div>
-
           <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '18px', padding: '24px', display: 'flex', flexDirection: 'column', flex: '1', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>

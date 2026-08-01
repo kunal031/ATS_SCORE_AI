@@ -48,7 +48,8 @@ export default function Dashboard({
   setAppMode: parentSetAppMode, 
   evalMode: parentEvalMode, 
   setEvalMode: parentSetEvalMode, 
-  triggerAction 
+  triggerAction,
+  onUpdateBatchCount
 }) {
   const [localAppMode, setLocalAppMode] = useState(() => localStorage.getItem('ats_app_mode') || 'live'); // 'live' | 'demo'
   const [localEvalMode, setLocalEvalMode] = useState(() => localStorage.getItem('ats_eval_mode') || 'single'); // 'single' | 'batch'
@@ -78,7 +79,7 @@ export default function Dashboard({
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed.filter(Boolean).map((c, i) => ({
             id: c?.id || `RES-00${i + 1}`,
             mode: c?.mode || 'text',
@@ -92,9 +93,7 @@ export default function Dashboard({
         }
       } catch (e) { /* fallback to default */ }
     }
-    return [
-      { id: 'RES-001', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' }
-    ];
+    return [];
   });
 
   // Execution state
@@ -107,7 +106,12 @@ export default function Dashboard({
 
   // Synchronized count of entered entries
   const enteredCount = Array.isArray(candidates) ? candidates.length : 0;
-  const countLabel = `${enteredCount} ${enteredCount === 1 ? 'Entry' : 'Entries'} Entered`;
+
+  useEffect(() => {
+    if (onUpdateBatchCount) {
+      onUpdateBatchCount(enteredCount);
+    }
+  }, [enteredCount, onUpdateBatchCount]);
 
   useEffect(() => {
     localStorage.setItem('ats_app_mode', appMode);
@@ -121,7 +125,7 @@ export default function Dashboard({
   }, [appMode, evalMode, inputMode, resumeUrl, resumeText, jobDescription, githubOverride, leetcodeOverride]);
 
   useEffect(() => {
-    if (Array.isArray(candidates) && candidates.length > 0) {
+    if (Array.isArray(candidates)) {
       const serializable = candidates.map(c => ({
         id: c.id,
         mode: c.mode,
@@ -206,7 +210,7 @@ export default function Dashboard({
     setResumeText('');
     setGithubOverride('');
     setLeetcodeOverride('');
-    setCandidates([{ id: 'RES-001', mode: 'file', file: null, url: '', text: '', github: '', leetcode: '', nameHint: '' }]);
+    setCandidates([]);
     setError('');
     setBulkPasteText('');
     setBulkStatus(null);
@@ -543,63 +547,31 @@ export default function Dashboard({
                 fontFamily: 'inherit'
               }}
             />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-              <label style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                color: '#c81e28',
-                transition: 'all 0.2s',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
-              }} title="Upload Job Description File (.txt)">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                  <line x1="12" y1="18" x2="12" y2="12"/>
-                  <polyline points="9 15 12 12 15 15"/>
-                </svg>
-                <input 
-                  type="file" 
-                  accept=".txt,.doc,.docx" 
-                  style={{ display: 'none' }} 
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => setJobDescription(event.target.result);
-                      reader.readAsText(e.target.files[0]);
-                    }
-                  }} 
-                />
-              </label>
-            </div>
           </div>
         </div>
 
         {/* PART 2 OF CONTAINER: Resume Upload side */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
               <span style={{ fontSize: '22px' }}>👥</span>
               <span style={{ fontSize: '20px', fontWeight: '700', color: '#0f172a', letterSpacing: '-0.3px' }}>Resumes</span>
             </div>
-            <span style={{
-              background: 'rgba(200, 30, 40, 0.08)',
-              color: '#c81e28',
-              padding: '5px 14px',
-              borderRadius: '16px',
-              fontSize: '12px',
-              fontWeight: '700',
-              fontFamily: 'var(--font-mono)',
-              border: '1px solid rgba(200, 30, 40, 0.2)'
-            }}>
-              Multi-Upload Supported
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'nowrap' }}>
+              <span style={{
+                background: 'rgba(200, 30, 40, 0.08)',
+                color: '#c81e28',
+                padding: '4px 12px',
+                borderRadius: '14px',
+                fontSize: '11px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-mono)',
+                border: '1px solid rgba(200, 30, 40, 0.2)',
+                whiteSpace: 'nowrap'
+              }}>
+                Multi-Upload Supported
+              </span>
+            </div>
           </div>
 
           {/* Dashed dropzone precisely themed for light corporate aesthetic */}
@@ -662,6 +634,15 @@ export default function Dashboard({
               <div>
                 <p style={{ color: '#059669', fontWeight: '700', fontSize: '17px', marginBottom: '4px' }}>✓ Selected: {selectedFile.name}</p>
                 <p style={{ color: '#64748b', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>{(selectedFile.size/1024).toFixed(1)} KB — Ready for analysis</p>
+              </div>
+            ) : evalMode === 'batch' ? (
+              <div>
+                <p style={{ fontSize: '17px', fontWeight: '700', color: '#0f172a', marginBottom: '6px', letterSpacing: '-0.2px' }}>
+                  Click to upload batch files or drag & drop
+                </p>
+                <p style={{ color: '#059669', fontSize: '14px', fontWeight: '700', fontFamily: 'var(--font-mono)', marginTop: '4px', background: '#ecfdf5', padding: '6px 16px', borderRadius: '12px', display: 'inline-block', border: '1px solid #a7f3d0' }}>
+                  📦 {enteredCount} {enteredCount === 1 ? 'Resume' : 'Resumes'} Added
+                </p>
               </div>
             ) : (
               <div>
@@ -784,6 +765,11 @@ export default function Dashboard({
               </div>
 
               {/* Candidate Entry List */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', padding: '0 4px', flexWrap: 'wrap', gap: '8px' }}>
+                <span style={{ fontSize: '16px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  📋 Added Batch Resumes
+                </span>
+              </div>
               <div style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '4px', display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '16px' }}>
                 {candidates.map((cand, index) => (
                   <div key={cand.id} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>

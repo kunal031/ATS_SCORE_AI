@@ -21,6 +21,7 @@ export default function App() {
   const [appMode, setAppMode] = useState(() => localStorage.getItem('ats_app_mode') || 'live'); // 'live' | 'demo'
   const [evalMode, setEvalMode] = useState(() => localStorage.getItem('ats_eval_mode') || 'single'); // 'single' | 'batch'
   const [triggerAction, setTriggerAction] = useState(null);
+  const [batchCount, setBatchCount] = useState(0);
 
   const handleEvaluationComplete = (result) => {
     const cleanResult = unwrapAiObjects(result);
@@ -67,6 +68,7 @@ export default function App() {
         onSelectMode={handleSelectMode} 
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        batchCount={batchCount}
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -90,6 +92,7 @@ export default function App() {
               evalMode={evalMode}
               setEvalMode={setEvalMode}
               triggerAction={triggerAction}
+              onUpdateBatchCount={(count) => setBatchCount(count)}
             />
           )}
 

@@ -741,7 +741,7 @@ h1, h2, h3, h4 {
 
 .split-container-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
   gap: 32px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -751,7 +751,7 @@ h1, h2, h3, h4 {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
 }
 
-/* Tablet and below breakpoint (< 1024px) */
+/* Tablet breakpoint (1024px and below) */
 @media (max-width: 1024px) {
   .app-root-layout {
     flex-direction: column !important;
@@ -770,7 +770,7 @@ h1, h2, h3, h4 {
   .split-container-grid {
     grid-template-columns: 1fr !important;
     gap: 24px !important;
-    padding: 22px !important;
+    padding: 24px !important;
   }
   .main-content-area {
     padding: 20px !important;
@@ -784,25 +784,85 @@ h1, h2, h3, h4 {
   }
 }
 
-/* Mobile Devices (< 640px) */
-@media (max-width: 640px) {
+/* Mobile & Phablet breakpoint (768px and below) - Completely removing body padding for clean native feel */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .app-container,
   .main-content-area {
-    padding: 14px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
   .split-container-grid {
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
-    padding: 16px !important;
-    border-radius: 16px !important;
+    gap: 20px !important;
+    padding: 20px 14px !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-bottom: 1px solid var(--border-glass) !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+  .glass-card {
+    padding: 20px 14px !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
   .navbar-container {
     padding: 12px 14px !important;
     flex-direction: column !important;
     align-items: stretch !important;
     text-align: center !important;
+    height: auto !important;
   }
   .navbar-container > div {
     justify-content: center !important;
+  }
+  /* Ensure text and components wrap responsively on mobile screens */
+  p, span, h1, h2, h3, h4, h5, div, a {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  textarea {
+    min-height: 240px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+  button, input, select {
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+}
+
+/* Small Mobile screens (480px and below) */
+@media (max-width: 480px) {
+  .split-container-grid,
+  .glass-card {
+    padding: 16px 12px !important;
+  }
+  .btn-primary, .btn-secondary {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    font-size: 14px !important;
+  }
+  .navbar-container {
+    padding: 10px 12px !important;
   }
 }
 
