@@ -831,14 +831,6 @@ export default function Dashboard({
                         <input
                           type="text"
                           className="input-field"
-                          placeholder="GitHub Username"
-                          value={cand.github || ''}
-                          onChange={(e) => handleCandidateChange(index, 'github', e.target.value)}
-                          style={{ fontSize: '12px', padding: '8px 10px', background: '#ffffff', borderColor: '#cbd5e1' }}
-                        />
-                        <input
-                          type="text"
-                          className="input-field"
                           placeholder="LeetCode Handle"
                           value={cand.leetcode || ''}
                           onChange={(e) => handleCandidateChange(index, 'leetcode', e.target.value)}
@@ -855,7 +847,7 @@ export default function Dashboard({
                 onClick={handleAddCandidate}
                 style={{ width: '100%', padding: '12px', background: '#ffffff', color: '#c81e28', border: '1px dashed rgba(200, 30, 40, 0.4)', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '14px', transition: 'all 0.2s', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}
               >
-                ➕ Add Another Resume Slot
+                Add Another Resume Slot
               </button>
             </div>
           )}

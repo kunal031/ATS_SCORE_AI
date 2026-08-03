@@ -121,58 +121,6 @@ export default function Sidebar({ appMode, evalMode, onSelectMode, activeTab, on
             {isSelected('live', 'batch') && <span style={{ color: '#c81e28', fontWeight: '800' }}>●</span>}
           </button>
         </div>
-
-        {/* DEMO TESTCASES FEATURES */}
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', paddingLeft: '4px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }}></span>
-            <span style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-              Demo Testcases
-            </span>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => onSelectMode('demo', 'single')}
-            style={getItemStyle(isSelected('demo', 'single'))}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '16px' }}>⚡</span>
-              <span>Demo: Single Senior Engineer</span>
-            </span>
-            {isSelected('demo', 'single') && <span style={{ color: '#c81e28', fontWeight: '800' }}>●</span>}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onSelectMode('demo', 'batch')}
-            style={getItemStyle(isSelected('demo', 'batch'))}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '16px' }}>👥</span>
-              <span>Demo: Batch Comparisons</span>
-            </span>
-            {isSelected('demo', 'batch') && <span style={{ color: '#c81e28', fontWeight: '800' }}>●</span>}
-          </button>
-
-          {/* VERIFIED EVALUATION NOTE directly below demo section */}
-          <div style={{
-            marginTop: '16px',
-            background: '#f8fafc',
-            padding: '16px',
-            borderRadius: '14px',
-            border: '1px solid #e2e8f0',
-            fontSize: '12px',
-            color: '#64748b',
-            lineHeight: '1.5',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.01)'
-          }}>
-            <div style={{ fontWeight: '700', color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px' }}>
-              <span>🛡️</span> Verified Evaluation
-            </div>
-            Select <strong>Demo</strong> to preview algorithmic and tech stack assessments instantly without uploading files.
-          </div>
-        </div>
       </div>
     </aside>
   );
