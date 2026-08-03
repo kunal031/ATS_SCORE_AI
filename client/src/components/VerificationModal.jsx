@@ -30,7 +30,8 @@ export default function VerificationModal({ modalData, onClose }) {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 9999,
-    padding: '20px'
+    padding: '20px',
+    boxSizing: 'border-box'
   };
 
   const modalStyle = {
@@ -43,11 +44,12 @@ export default function VerificationModal({ modalData, onClose }) {
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
     border: '1px solid #e2e8f0',
     padding: '36px',
-    position: 'relative'
+    position: 'relative',
+    boxSizing: 'border-box'
   };
 
   return (
-    <div style={overlayStyle} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="verification-modal-overlay" style={overlayStyle} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div style={modalStyle} className="verification-modal animate-fade-in">
         
         {/* HEADER */}

@@ -35,7 +35,7 @@ export default function App() {
         onReset={handleReset}
       />
 
-      <main className="main-content-area" style={{ flex: 1, width: '100%', padding: '32px' }}>
+      <main className="main-content-area" style={{ flex: 1, width: '100%', boxSizing: 'border-box' }}>
         <Dashboard 
           key={resetKey}
           onResultsChange={handleResultsChange}

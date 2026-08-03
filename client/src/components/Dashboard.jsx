@@ -385,7 +385,7 @@ export default function Dashboard({
         {/* Two Input Areas Body (Collapsed when inputsHidden == true) */}
         {!inputsHidden && (
           <div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '28px' }} className="dashboard-grid">
+            <div style={{ gap: '28px', width: '100%' }} className="dashboard-grid">
               
               {/* AREA 1: JOB DESCRIPTION */}
               <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -647,7 +647,7 @@ export default function Dashboard({
             </div>
           </div>
 
-          <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+          <div className="table-responsive-container" style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid #e2e8f0', WebkitOverflowScrolling: 'touch', width: '100%', boxSizing: 'border-box' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', background: '#ffffff', minWidth: '700px' }}>
               <thead>
                 <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0', color: '#334155', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.6px', fontWeight: '800' }}>

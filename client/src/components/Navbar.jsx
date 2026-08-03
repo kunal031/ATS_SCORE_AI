@@ -16,22 +16,22 @@ export default function Navbar({ evaluationResults = [], isEvaluating = false, o
   const allResultsFinished = hasResults && !isEvaluating;
 
   return (
-    <header style={{
-      height: '76px',
+    <header className="navbar-container" style={{
       minHeight: '76px',
       background: '#ffffff',
       borderBottom: '1px solid #e2e8f0',
-      padding: '0 32px',
+      padding: '16px 32px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)'
+      boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
+      boxSizing: 'border-box'
     }}>
       {/* BRANDING & LOGO */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={onReset}>
+      <div className="navbar-brand-group" style={{ display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer' }} onClick={onReset}>
         <div style={{
           width: '44px',
           height: '44px',
@@ -42,7 +42,8 @@ export default function Navbar({ evaluationResults = [], isEvaluating = false, o
           border: '1px solid rgba(17, 88, 154, 0.2)',
           borderRadius: '12px',
           color: '#11589a',
-          boxShadow: '0 2px 8px rgba(17, 88, 154, 0.1)'
+          boxShadow: '0 2px 8px rgba(17, 88, 154, 0.1)',
+          flexShrink: 0
         }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10a10 10 0 0 1-10-10 10 10 0 0 1 10-10z"/>
@@ -51,14 +52,14 @@ export default function Navbar({ evaluationResults = [], isEvaluating = false, o
           </svg>
         </div>
         <div>
-          <h1 style={{ fontSize: '22px', fontWeight: '800', margin: 0, color: '#0f172a', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
+          <h1 className="navbar-title" style={{ fontSize: '22px', fontWeight: '800', margin: 0, color: '#0f172a', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
             JD vs Resume Check
           </h1>
         </div>
       </div>
 
       {/* TOP RIGHT ACTION BAR (CSV Download, Copy Sheet, & Evaluate Another) */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div className="navbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
         {hasResults && (
           <>
             <button
