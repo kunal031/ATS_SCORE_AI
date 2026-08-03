@@ -691,10 +691,10 @@ export default function Dashboard({
 
               <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', marginTop: '4px' }}>
                 <span style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a', display: 'block', marginBottom: '10px' }}>
-                  ⚡ Optional GitHub & Coding Platform Verification:
+                  Optional Coding Platform Verification:
                 </span>
                 <div className="grid-2-col" style={{ gap: '12px' }}>
-                  <div>
+                  {/* <div>
                     <input
                       type="text"
                       className="input-field"
@@ -703,7 +703,7 @@ export default function Dashboard({
                       onChange={(e) => setGithubOverride(e.target.value)}
                       style={{ fontSize: '13px', background: '#ffffff', borderColor: '#cbd5e1' }}
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <input
                       type="text"
@@ -728,14 +728,12 @@ export default function Dashboard({
                   <span style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     ⚡ Smart Bulk Paste Links
                   </span>
-                  <span style={{ fontSize: '12px', color: '#c81e28', fontWeight: '600' }}>
-                    Auto-parse multiple resume URLs from any text block
-                  </span>
+                  
                 </div>
                 <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
                   <textarea
                     className="textarea-field"
-                    placeholder="Paste an email, spreadsheet dump, or text block containing multiple links (e.g. https://drive.google.com/... https://github.com/...)..."
+                    placeholder="Paste an email, spreadsheet dump, or text block containing multiple links"
                     value={bulkPasteText}
                     onChange={(e) => {
                       setBulkPasteText(e.target.value);
@@ -750,7 +748,6 @@ export default function Dashboard({
                       </span>
                     ) : (
                       <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
-                        💡 Extracts links automatically and syncs directly with candidate entries
                       </span>
                     )}
                     <button
@@ -758,7 +755,7 @@ export default function Dashboard({
                       onClick={handleBulkParseAndPopulate}
                       style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '10px', background: '#c81e28', color: '#fff', fontWeight: '700', border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(200, 30, 40, 0.25)' }}
                     >
-                      ✨ Extract & Populate
+                    Extract & Populate
                     </button>
                   </div>
                 </div>
