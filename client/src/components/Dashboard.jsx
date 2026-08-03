@@ -420,7 +420,7 @@ export default function Dashboard({
                 <div style={{ background: '#f0f7ff', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '16px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(17, 88, 154, 0.04)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
                     <span style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      ⚡ Bulk Import & Extract Profiles
+                      Bulk Import
                     </span>
                     <div style={{ display: 'flex', gap: '4px', background: '#e2e8f0', padding: '3px', borderRadius: '10px' }}>
                       <button
@@ -428,14 +428,14 @@ export default function Dashboard({
                         onClick={() => { setImportMode('csv'); setImportStatus(null); }}
                         style={{ padding: '4px 12px', fontSize: '12px', borderRadius: '8px', border: 'none', background: importMode === 'csv' ? '#11589a' : 'transparent', color: importMode === 'csv' ? '#ffffff' : '#475569', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}
                       >
-                        📄 CSV File
+                         CSV File
                       </button>
                       <button
                         type="button"
                         onClick={() => { setImportMode('bulk_text'); setImportStatus(null); }}
                         style={{ padding: '4px 12px', fontSize: '12px', borderRadius: '8px', border: 'none', background: importMode === 'bulk_text' ? '#11589a' : 'transparent', color: importMode === 'bulk_text' ? '#ffffff' : '#475569', fontWeight: '700', cursor: 'pointer', transition: 'all 0.15s' }}
                       >
-                        📝 Multiple Resume Links
+                        Multiple Resume Links
                       </button>
                     </div>
                   </div>
@@ -611,7 +611,7 @@ export default function Dashboard({
                   </>
                 ) : (
                   <>
-                    <span>⚡</span> Submit & Evaluate Candidates ➔
+                    Submit & Evaluate Candidates ➔
                   </>
                 )}
               </button>
